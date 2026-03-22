@@ -155,7 +155,7 @@ function SepsisCard({data, outcome}){
           {predCorrect===false&&<span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-bold">❌ Incorrect Prediction</span>}
         </div>
       </div>
-      <CIBar prob={prob} ciLow={ciLow} ciHigh={ciHigh} label="Sepsis Probability"/>
+      <ProbBar prob={prob} label="Sepsis Probability"/>
       <div className={`mt-3 p-3 rounded-lg ${isHigh?"bg-red-100 border border-red-300":isMod?"bg-orange-100 border border-orange-300":"bg-green-100 border border-green-300"}`}>
         <p className="text-xs font-bold text-gray-700 mb-1">CLINICAL RECOMMENDATION</p>
         <p className="text-sm text-gray-800">{data.recommendation||(isHigh?"Immediate sepsis protocol — blood cultures, antibiotics within 1 hour":isMod?"Monitor closely, consider early sepsis workup":"Continue routine monitoring")}</p>
@@ -234,7 +234,7 @@ function MortalityCard({data, outcome}){
           {predCorrect===false&&<span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-bold">❌ Incorrect</span>}
         </div>
       </div>
-      <CIBar prob={prob} ciLow={ciLow} ciHigh={ciHigh} label="Estimated Mortality Risk"/>
+      <ProbBar prob={prob} label="Estimated Mortality Risk"/>
       <div className="grid grid-cols-2 gap-2 mt-3">
         <div className="bg-white rounded-lg p-2 border text-center"><p className="text-xs text-gray-500">Timeframe</p><p className="text-sm font-bold">{data.timeframe||"7-14 days"}</p></div>
         <div className="bg-white rounded-lg p-2 border text-center"><p className="text-xs text-gray-500">Trend</p><p className="text-sm font-bold">{data.trend||"STABLE"}</p></div>
@@ -266,169 +266,123 @@ function ICUReport({selected,dashboard,predictions,scores,vitals,reportData,hist
   const sf=calcSOFA({spo2:reportData.spo2,platelets:reportData.platelets,mean_arterial_pressure:reportData.map,creatinine:reportData.creatinine});
   const qs=calcQSOFA({respiratory_rate:reportData.rr,systolic_bp:reportData.sbp,gcs:reportData.gcs});
   const nw=calcNEWS({respiratory_rate:reportData.rr,spo2:reportData.spo2,systolic_bp:reportData.sbp,heart_rate:reportData.hr,temperature:reportData.temp});
-  const mortalityRisk=predictions?.mortality?.probability?Math.round(predictions.mortality.probability*100):Math.min(Math.round(ap.mortality*0.7+sf.score*2.5),95);
-  const organRisk=predictions?.["organ-failure"]?.probability?Math.round(predictions["organ-failure"].probability*100):Math.min(Math.round(sf.score*8+(p(reportData.creatinine)>2?15:0)+(p(reportData.spo2)<94?10:0)),95);
-  const sepsisPct=predictions?.sepsis?Math.round(predictions.sepsis.probability*100):null;
 
-  const ScorePill=({label,score,sub,col})=>{
-    const bg={green:"#27ae60",yellow:"#e67e22",orange:"#d35400",red:"#c0392b",blue:"#2980b9"}[col]||"#2980b9";
-    return(<div style={{background:bg,borderRadius:10,padding:"10px 14px",textAlign:"center",color:"white",minWidth:90,flex:1}}><div style={{fontSize:10,opacity:0.85,marginBottom:2}}>{label}</div><div style={{fontSize:28,fontWeight:900,lineHeight:1}}>{score}</div>{sub&&<div style={{fontSize:10,opacity:0.9,marginTop:2}}>{sub}</div>}</div>);
-  };
-  const R=({label,value,unit="",warn=false})=>(
-    <tr style={{borderBottom:"1px solid #f0f0f0"}}>
-      <td style={{padding:"5px 8px",fontSize:12,color:"#555",width:"50%"}}>{label}</td>
-      <td style={{padding:"5px 8px",fontSize:13,fontWeight:warn?"700":"600",color:warn?"#c0392b":"#1a1a1a",textAlign:"right"}}>{value||"—"}{unit&&<span style={{color:"#888",fontWeight:400,fontSize:11}}> {unit}</span>}</td>
+  const R=({label,value,unit=""})=>(
+    <tr style={{borderBottom:"1px solid #ddd"}}>
+      <td style={{padding:"6px 8px",fontSize:13,color:"#333",fontWeight:500}}>{label}</td>
+      <td style={{padding:"6px 8px",fontSize:13,fontWeight:600,color:"#000",textAlign:"right"}}>{value||"—"}{unit&&<span style={{color:"#666",fontWeight:400,fontSize:12}}> {unit}</span>}</td>
     </tr>
-  );
-  const SecHead=({bg,icon,title})=>(
-    <div style={{background:bg,borderRadius:6,padding:"7px 14px",marginBottom:10,display:"flex",alignItems:"center",gap:8}}>
-      <span style={{fontSize:14}}>{icon}</span>
-      <span style={{color:"white",fontWeight:700,fontSize:12,letterSpacing:1}}>{title}</span>
-    </div>
   );
 
   return(
-    <div style={{fontFamily:"Georgia,serif",background:"#f4f6f9",minHeight:"100vh",padding:24}}>
-      <style>{`@media print{.no-print{display:none!important}body{background:white;margin:0}.report-wrap{box-shadow:none!important;margin:0!important;max-width:100%!important}@page{margin:1.5cm;size:A4}}.report-wrap table{width:100%;border-collapse:collapse}`}</style>
-      <div className="no-print" style={{maxWidth:860,margin:"0 auto 16px",display:"flex",justifyContent:"space-between"}}>
-        <button onClick={onBack} style={{background:"#ecf0f1",border:"none",borderRadius:8,padding:"8px 18px",fontSize:13,cursor:"pointer",fontWeight:600}}>← Back</button>
-        <button onClick={()=>window.print()} style={{background:"#1e3a5f",color:"white",border:"none",borderRadius:8,padding:"10px 28px",fontSize:14,fontWeight:700,cursor:"pointer"}}>🖨️ Print / Save PDF</button>
+    <div style={{fontFamily:"Arial,sans-serif",background:"#fff",minHeight:"100vh",padding:20}}>
+      <style>{`@media print{.no-print{display:none!important}body{background:white;margin:0;padding:0}.report{box-shadow:none;border:none;max-width:100%}@page{margin:1cm;size:A4;}}table{width:100%;border-collapse:collapse;margin:8px 0}th{background:#f5f5f5;padding:8px;font-weight:600;text-align:left;border-bottom:2px solid #333}td{padding:6px 8px;border-bottom:1px solid #ddd}h1{margin:8px 0;font-size:20px;color:#1e3a5f;font-weight:bold}h2{margin:12px 0 6px 0;font-size:14px;color:#fff;background:#1e3a5f;padding:8px;font-weight:bold}.section{margin:12px 0;padding:10px;border:1px solid #ddd;background:#fafafa}`}</style>
+      
+      <div className="no-print" style={{marginBottom:16,display:"flex",gap:8,justifyContent:"space-between"}}>
+        <button onClick={onBack} style={{padding:"8px 16px",background:"#ddd",border:"none",cursor:"pointer",borderRadius:4}}>← Back</button>
+        <button onClick={()=>window.print()} style={{padding:"8px 16px",background:"#1e3a5f",color:"white",border:"none",cursor:"pointer",borderRadius:4,fontWeight:600}}>🖨️ Print / Save PDF</button>
       </div>
-      <div className="report-wrap" style={{maxWidth:860,margin:"0 auto",background:"white",borderRadius:12,boxShadow:"0 4px 24px rgba(0,0,0,0.08)",overflow:"hidden"}}>
-        <div style={{background:"linear-gradient(135deg,#1e3a5f 0%,#2980b9 100%)",padding:"20px 28px",color:"white"}}>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-            <div><div style={{fontSize:20,fontWeight:900,letterSpacing:1}}>🏥 ICU CLINICAL REPORT</div><div style={{fontSize:11,opacity:0.8,marginTop:3}}>PANOPTES-ICU Clinical Decision Support System</div></div>
-            <div style={{textAlign:"right",fontSize:11,opacity:0.9}}><div style={{fontWeight:700}}>Date: {new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"})}</div><div>Time: {new Date().toLocaleTimeString()}</div><div>Report ID: ICU-{Date.now().toString().slice(-6)}</div></div>
-          </div>
+
+      <div className="report" style={{maxWidth:900,margin:"0 auto",background:"white"}}>
+        {/* Header */}
+        <div style={{textAlign:"center",borderBottom:"2px solid #333",paddingBottom:12,marginBottom:16}}>
+          <h1>ICU CLINICAL REPORT</h1>
+          <p style={{margin:"4px 0",fontSize:12,color:"#666"}}>PANOPTES-ICU Clinical Decision Support System</p>
+          <p style={{margin:"4px 0",fontSize:11,color:"#888"}}>Date: {new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"})} | Time: {new Date().toLocaleTimeString()} | Report ID: ICU-{Date.now().toString().slice(-6)}</p>
         </div>
-        <div style={{padding:"22px 28px"}}>
-          {/* 1. Patient Info */}
-          <div style={{marginBottom:20}}><SecHead bg="#1e3a5f" icon="👤" title="PATIENT INFORMATION"/>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
-              <table><tbody><R label="Patient ID" value={selected?.patient_id}/><R label="Age" value={selected?.age} unit="years"/><R label="Gender" value={selected?.gender}/></tbody></table>
-              <table><tbody><R label="Diagnosis" value={reportData.diagnosis||selected?.diagnosis}/><R label="Weight" value={reportData.weight} unit="kg"/><R label="Attending Doctor" value={reportData.doctor}/></tbody></table>
-              <table><tbody><R label="Sepsis Label" value={selected?.sepsis_label?"YES":"No"} warn={selected?.sepsis_label}/><R label="Mortality Label" value={selected?.mortality_label?"YES":"No"} warn={selected?.mortality_label}/><R label="Date" value={new Date().toLocaleDateString()}/></tbody></table>
-            </div>
-          </div>
-          {/* 2. Vitals */}
-          <div style={{marginBottom:20}}><SecHead bg="#c0392b" icon="💓" title="VITAL SIGNS"/>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-              <table><tbody><R label="Blood Pressure (Sys/Dia)" value={reportData.sbp&&reportData.dbp?`${reportData.sbp}/${reportData.dbp}`:""} unit="mmHg" warn={p(reportData.sbp)<90}/><R label="MAP" value={reportData.map||Math.round((p(reportData.sbp)+2*p(reportData.dbp))/3)||""} unit="mmHg" warn={(reportData.map||Math.round((p(reportData.sbp)+2*p(reportData.dbp))/3))<65}/><R label="Heart Rate" value={reportData.hr} unit="bpm" warn={p(reportData.hr)>120||p(reportData.hr)<50}/><R label="Respiratory Rate" value={reportData.rr} unit="/min" warn={p(reportData.rr)>20||p(reportData.rr)<10}/></tbody></table>
-              <table><tbody><R label="SpO2" value={reportData.spo2} unit="%" warn={p(reportData.spo2)<94}/><R label="Temperature" value={reportData.temp} unit="°C" warn={p(reportData.temp)>38.5||p(reportData.temp)<36}/><R label="GCS" value={reportData.gcs} unit="/15" warn={p(reportData.gcs)<13}/></tbody></table>
-            </div>
-          </div>
-          {/* 3. Labs */}
-          <div style={{marginBottom:20}}><SecHead bg="#8e44ad" icon="🧪" title="LABORATORY VALUES"/>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-              <table><tbody><R label="Hemoglobin" value={reportData.hb} unit="g/dL" warn={p(reportData.hb)<8}/><R label="Blood Sugar" value={reportData.sugar} unit="mg/dL" warn={p(reportData.sugar)>200||p(reportData.sugar)<70}/><R label="Creatinine" value={reportData.creatinine} unit="mg/dL" warn={p(reportData.creatinine)>1.5}/></tbody></table>
-              <table><tbody><R label="Platelets" value={reportData.platelets} unit="x10^3/uL" warn={p(reportData.platelets)<100}/><R label="Lactate" value={reportData.lactate} unit="mmol/L" warn={p(reportData.lactate)>2}/><R label="WBC" value={reportData.wbc} unit="x10^3/uL" warn={p(reportData.wbc)>11||p(reportData.wbc)<4}/></tbody></table>
-            </div>
-          </div>
-          {/* 4. Scores */}
-          <div style={{marginBottom:20}}><SecHead bg="#16a085" icon="📊" title="SEVERITY SCORES — AUTO CALCULATED"/>
-            <div style={{display:"flex",gap:10,marginBottom:12,flexWrap:"wrap"}}>
-              <ScorePill label="APACHE II" score={ap.score} sub={ap.cat} col={ap.score<10?"green":ap.score<20?"yellow":ap.score<30?"orange":"red"}/>
-              <ScorePill label="SOFA" score={sf.score} sub={sf.cat} col={sf.score<=1?"green":sf.score<=5?"yellow":sf.score<=9?"orange":"red"}/>
-              <ScorePill label="qSOFA" score={qs.score+"/3"} sub={qs.high?"HIGH RISK":"Low Risk"} col={qs.high?"red":"green"}/>
-              <ScorePill label="NEWS" score={nw.score} sub={nw.risk+" Risk"} col={nw.risk==="Low"?"green":nw.risk==="Medium"?"yellow":"red"}/>
-              <ScorePill label="Est. Mortality" score={ap.mortality+"%"} sub="APACHE-based" col={ap.mortality>40?"red":ap.mortality>20?"orange":"green"}/>
-            </div>
-            <div style={{background:"#f8f9fa",borderRadius:8,padding:"10px 14px",fontSize:12,color:"#444",lineHeight:1.9,border:"1px solid #e9ecef"}}>
-              APACHE II {ap.score} → <strong>{ap.cat}</strong> ({ap.mortality}% mortality) | SOFA {sf.score} → <strong>{sf.cat}</strong> | qSOFA {qs.score}/3 → <strong style={{color:qs.high?"#c0392b":"#27ae60"}}>{qs.high?"HIGH RISK — Initiate sepsis evaluation":"Low risk"}</strong> | NEWS {nw.score} → <strong>{nw.risk} risk</strong>
-            </div>
-          </div>
-          {/* 4b. Detailed Scores from Scoring Tab */}
-          {(reportData.score_apache||reportData.score_sofa||reportData.score_ranson||reportData.score_saps||reportData.score_mods||reportData.score_murray||reportData.score_alvarado)&&(
-            <div style={{marginBottom:20}}>
-              <SecHead bg="#117a65" icon="📊" title="DETAILED SCORING RESULTS (FROM SCORING TAB)"/>
-              <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8}}>
-                {[
-                  reportData.score_apache&&{l:"APACHE II",v:reportData.score_apache,sub:`${reportData.score_apache_mort}% mortality`,cat:reportData.score_apache_cat,warn:parseFloat(reportData.score_apache)>=25},
-                  reportData.score_sofa&&{l:"SOFA Score",v:reportData.score_sofa,sub:reportData.score_sofa_cat,warn:parseFloat(reportData.score_sofa)>=9},
-                  reportData.score_gcs&&{l:"GCS",v:`${reportData.score_gcs}/15`,sub:reportData.score_gcs_sev,warn:parseFloat(reportData.score_gcs)<9},
-                  reportData.score_ranson&&{l:"Ranson",v:reportData.score_ranson,sub:reportData.score_ranson_cat,warn:parseFloat(reportData.score_ranson)>=3},
-                  reportData.score_saps&&{l:"SAPS II",v:reportData.score_saps,sub:`${reportData.score_saps_mort}% mortality`,warn:parseFloat(reportData.score_saps)>=40},
-                  reportData.score_mods&&{l:"MODS",v:reportData.score_mods,sub:reportData.score_mods_cat,warn:parseFloat(reportData.score_mods)>=9},
-                  reportData.score_murray&&{l:"Murray (ARDS)",v:reportData.score_murray,sub:reportData.score_murray_cat,warn:parseFloat(reportData.score_murray)>=2.5},
-                  reportData.score_alvarado&&{l:"Alvarado",v:reportData.score_alvarado,sub:reportData.score_alvarado_cat,warn:parseFloat(reportData.score_alvarado)>=7},
-                ].filter(Boolean).map((s,i)=>(
-                  <div key={i} style={{textAlign:"center",border:`2px solid ${s.warn?"#e74c3c":"#aed6f1"}`,borderRadius:8,padding:"10px 6px",background:s.warn?"#fdf2f2":"#eaf4ff"}}>
-                    <div style={{fontSize:10,color:"#888",marginBottom:2,fontWeight:600}}>{s.l}</div>
-                    <div style={{fontSize:22,fontWeight:900,color:s.warn?"#c0392b":"#1a5276"}}>{s.v}</div>
-                    <div style={{fontSize:10,color:s.warn?"#c0392b":"#2980b9",fontWeight:600,marginTop:2}}>{s.sub}</div>
-                    {s.warn&&<div style={{fontSize:9,color:"#e74c3c",fontWeight:700,marginTop:2}}>⚠️ High Risk</div>}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-          {/* 5. AI Predictions */}
-          <div style={{marginBottom:20}}><SecHead bg="#2c3e50" icon="🤖" title="AI RISK PREDICTIONS"/>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
-              {[
-                {label:"Mortality Risk",value:mortalityRisk,note:mortalityRisk>50?"High — ICU escalation recommended":mortalityRisk>25?"Moderate — Close monitoring":"Low — Continue management"},
-                {label:"Sepsis Risk",value:sepsisPct!==null?sepsisPct:Math.min(Math.round(qs.score*25+ap.score*0.8),95),note:predictions?.sepsis?.recommendation||"Based on GRU-D model"},
-                {label:"Organ Failure Risk",value:organRisk,note:organRisk>50?"Monitor organ function closely":"Routine monitoring"},
-              ].map((item,i)=>{
-                const col=item.value>50?"#c0392b":item.value>25?"#e67e22":"#27ae60";
-                return(<div key={i} style={{background:"#f8f9fa",borderRadius:10,padding:14,border:`2px solid ${col}30`}}><div style={{fontSize:11,color:"#666",fontWeight:700,marginBottom:6}}>{item.label}</div><div style={{fontSize:34,fontWeight:900,color:col,lineHeight:1}}>{item.value}<span style={{fontSize:18}}>%</span></div><div style={{width:"100%",background:"#e0e0e0",borderRadius:4,height:6,margin:"8px 0"}}><div style={{width:`${item.value}%`,height:6,borderRadius:4,background:col}}/></div><div style={{fontSize:10,color:"#666",lineHeight:1.4}}>{item.note}</div></div>);
-              })}
-            </div>
-            {predictions?.deterioration&&<div style={{marginTop:10,padding:"10px 14px",background:predictions.deterioration.is_deteriorating?"#fdf2f2":"#f0fdf4",borderRadius:8,border:`1px solid ${predictions.deterioration.is_deteriorating?"#f5c6cb":"#c3e6cb"}`,fontSize:12}}><strong>VAE Deterioration:</strong> {predictions.deterioration.is_deteriorating?"⚠️ DETERIORATING":"✅ STABLE"} (Error: {predictions.deterioration.reconstruction_error?.toFixed(3)||"N/A"})</div>}
-          </div>
-          {/* 6. History */}
-          {historyData&&<div style={{marginBottom:20}}><SecHead bg="#6c3483" icon="📋" title="HISTORY & PRESENTING COMPLAINTS"/>
-            <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:8}}>
-              {[["fever","Fever"],["breathlessness","Breathlessness"],["chestPain","Chest Pain"],["cough","Cough"],["vomiting","Nausea/Vomiting"],["alteredConsciousness","Altered Consciousness"]].map(([k,l])=>historyData[k]&&<span key={k} style={{background:"#eaf4ff",border:"1px solid #2980b9",color:"#1a5276",fontSize:11,padding:"3px 10px",borderRadius:20,fontWeight:600}}>{l}</span>)}
-            </div>
-            <table><tbody>{historyData.duration&&<R label="Duration" value={historyData.duration}/>}{historyData.otherComplaints&&<R label="Other Complaints" value={historyData.otherComplaints}/>}</tbody></table>
-          </div>}
-          {/* 7. Lab Summary */}
-          <div style={{marginBottom:20}}><SecHead bg="#1a5276" icon="🔬" title="BASIC LAB DIAGNOSIS SUMMARY"/>
-            <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:8}}>
-              {[{label:"HR",value:reportData.hr,unit:"bpm",warn:p(reportData.hr)>120||p(reportData.hr)<50},{label:"BP",value:reportData.sbp&&reportData.dbp?`${reportData.sbp}/${reportData.dbp}`:"",unit:"mmHg",warn:p(reportData.sbp)<90},{label:"Sugar",value:reportData.sugar,unit:"mg/dL",warn:p(reportData.sugar)>200},{label:"Hb",value:reportData.hb,unit:"g/dL",warn:p(reportData.hb)<8},{label:"WBC",value:reportData.wbc,unit:"x10^3",warn:p(reportData.wbc)>11},{label:"Creatinine",value:reportData.creatinine,unit:"mg/dL",warn:p(reportData.creatinine)>1.5}].map((item,i)=>(
-                <div key={i} style={{textAlign:"center",border:`2px solid ${item.warn&&item.value?"#e74c3c":"#dee2e6"}`,borderRadius:8,padding:"8px 4px",background:item.warn&&item.value?"#fdf2f2":"#f8f9fa"}}>
-                  <div style={{fontSize:10,color:"#888",marginBottom:2}}>{item.label}</div>
-                  <div style={{fontSize:18,fontWeight:900,color:item.warn&&item.value?"#c0392b":"#1a1a1a"}}>{item.value||"—"}</div>
-                  <div style={{fontSize:9,color:"#aaa"}}>{item.unit}</div>
-                  {item.warn&&item.value&&<div style={{fontSize:9,color:"#e74c3c",fontWeight:700}}>Abnormal</div>}
-                </div>
-              ))}
-            </div>
-          </div>
-          {/* 8. Clinical Assessment */}
-          <div style={{marginBottom:20}}><SecHead bg="#d35400" icon="🩺" title="CLINICAL ASSESSMENT & TREATMENT PLAN"/>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
-              <table><tbody><R label="Presumptive Diagnosis" value={reportData.presumptive||selected?.diagnosis}/><R label="Final Diagnosis" value={reportData.finalDx}/></tbody></table>
-              <table><tbody><R label="Antibiotics" value={reportData.antibiotics}/><R label="IV Fluids" value={reportData.fluids}/></tbody></table>
-            </div>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-              <table><tbody><R label="Vasopressors" value={reportData.vasopressors}/><R label="Ventilation" value={reportData.ventilation}/></tbody></table>
-              <table><tbody><R label="Notes" value={reportData.notes}/></tbody></table>
-            </div>
-          </div>
-          {/* 9. ABX */}
-          {abxResult&&!abxResult.error&&<div style={{marginBottom:20}}><SecHead bg="#1e8449" icon="💊" title="ANTIMICROBIAL STEWARDSHIP — AI RECOMMENDATION"/>
-            <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:8}}>
-              {[["Drug",abxResult.recommended_drug],["Dose",abxResult.dose],["Frequency",abxResult.frequency],["Duration",abxResult.duration]].map(([l,v])=>(
-                <div key={l} style={{background:"#f0fff4",border:"1px solid #a9dfbf",borderRadius:8,padding:"8px",textAlign:"center"}}><div style={{fontSize:10,color:"#888",marginBottom:2}}>{l}</div><div style={{fontSize:13,fontWeight:700,color:"#1e8449"}}>{v||"—"}</div></div>
-              ))}
-            </div>
-            <table><tbody>{abxResult.rationale&&<R label="Rationale" value={abxResult.rationale}/>}{abxResult.renal_adjustment&&<R label="Renal Adjustment" value={abxResult.renal_adjustment} warn={p(reportData.creatinine)>1.5}/>}{abxResult.deescalation&&<R label="De-escalation" value={abxResult.deescalation}/>}</tbody></table>
-          </div>}
-          {/* 10. Nutrition */}
-          {nutritionResult&&<div style={{marginBottom:20}}><SecHead bg="#1e8449" icon="🥗" title="ICU NUTRITION PLAN"/>
-            <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8}}>
-              {[["Calories",`${nutritionResult.kcalTarget} kcal/day`],["Protein",`${nutritionResult.proteinMin}-${nutritionResult.proteinMax} g/day`],["Route",nutritionResult.route.split("(")[0].trim()],["Formula",nutritionResult.formula.split("(")[0].trim()]].map(([l,v])=>(
-                <div key={l} style={{background:"#f0fff4",border:"1px solid #a9dfbf",borderRadius:8,padding:"8px",textAlign:"center"}}><div style={{fontSize:10,color:"#888",marginBottom:2}}>{l}</div><div style={{fontSize:12,fontWeight:700,color:"#1e8449"}}>{v}</div></div>
-              ))}
-            </div>
-          </div>}
-          {/* Footer */}
-          <div style={{borderTop:"2px solid #eee",paddingTop:14,display:"flex",justifyContent:"space-between",alignItems:"flex-end"}}>
-            <div style={{fontSize:10,color:"#888",lineHeight:1.6}}>Generated by PANOPTES-ICU Clinical Decision Support System<br/>AI Models: GRU-D Sepsis · VAE Deterioration · APACHE II + SOFA Mortality<br/><span style={{color:"#c0392b",fontWeight:700}}>FOR CLINICAL USE ONLY — Always verify with attending physician</span></div>
-            <div style={{fontSize:11,color:"#555",textAlign:"right"}}><div style={{marginBottom:4}}>Attending: <strong>{reportData.doctor||"_______________"}</strong></div><div style={{borderTop:"1px solid #999",paddingTop:4,color:"#888"}}>Signature & Stamp</div></div>
-          </div>
+
+        {/* Patient Info */}
+        <div className="section">
+          <h2>PATIENT INFORMATION</h2>
+          <table>
+            <tbody>
+              <tr>
+                <td style={{width:"33%"}}><strong>Patient ID</strong></td>
+                <td style={{width:"33%"}}>{selected?.patient_id}</td>
+                <td style={{width:"34%"}}><strong>Age</strong></td>
+                <td>{selected?.age} years</td>
+              </tr>
+              <tr>
+                <td><strong>Gender</strong></td>
+                <td>{selected?.gender}</td>
+                <td><strong>Diagnosis</strong></td>
+                <td>{reportData.diagnosis||selected?.diagnosis||"—"}</td>
+              </tr>
+              <tr>
+                <td><strong>Attending Doctor</strong></td>
+                <td>{reportData.doctor||"—"}</td>
+                <td><strong>Date of Report</strong></td>
+                <td>{new Date().toLocaleDateString()}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Vital Signs */}
+        <div className="section">
+          <h2>VITAL SIGNS</h2>
+          <table>
+            <tbody>
+              <R label="Blood Pressure (Sys/Dia)" value={reportData.sbp&&reportData.dbp?`${reportData.sbp}/${reportData.dbp}`:""} unit="mmHg"/>
+              <R label="Heart Rate" value={reportData.hr} unit="bpm"/>
+              <R label="Respiratory Rate" value={reportData.rr} unit="/min"/>
+              <R label="Temperature" value={reportData.temp} unit="°C"/>
+              <R label="SpO2" value={reportData.spo2} unit="%"/>
+              <R label="GCS" value={reportData.gcs} unit="/15"/>
+              <R label="MAP" value={reportData.map||Math.round((p(reportData.sbp)+2*p(reportData.dbp))/3)||""} unit="mmHg"/>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Laboratory Values */}
+        <div className="section">
+          <h2>LABORATORY VALUES</h2>
+          <table>
+            <tbody>
+              <R label="Hemoglobin" value={reportData.hb} unit="g/dL"/>
+              <R label="Blood Sugar" value={reportData.sugar} unit="mg/dL"/>
+              <R label="Creatinine" value={reportData.creatinine} unit="mg/dL"/>
+              <R label="Platelets" value={reportData.platelets} unit="×10³/µL"/>
+              <R label="WBC" value={reportData.wbc} unit="×10³/µL"/>
+              <R label="Lactate" value={reportData.lactate} unit="mmol/L"/>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Clinical Scores */}
+        <div className="section">
+          <h2>SEVERITY SCORES</h2>
+          <table>
+            <tbody>
+              <R label="APACHE II Score" value={ap.score} unit={`(${ap.cat}, ${ap.mortality}% mortality)`}/>
+              <R label="SOFA Score" value={sf.score} unit={`(${sf.cat})`}/>
+              <R label="qSOFA Score" value={`${qs.score}/3`} unit={qs.high?"HIGH RISK":"Low Risk"}/>
+              <R label="NEWS Score" value={nw.score} unit={`(${nw.risk} Risk)`}/>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Assessment and Treatment */}
+        <div className="section">
+          <h2>CLINICAL ASSESSMENT & TREATMENT PLAN</h2>
+          <table>
+            <tbody>
+              <R label="Presumptive Diagnosis" value={reportData.presumptive||selected?.diagnosis}/>
+              <R label="Final Diagnosis" value={reportData.finalDx}/>
+              <R label="Antibiotics" value={reportData.antibiotics}/>
+              <R label="IV Fluids" value={reportData.fluids}/>
+              <R label="Vasopressors" value={reportData.vasopressors}/>
+              <R label="Ventilation" value={reportData.ventilation}/>
+              <R label="Additional Notes" value={reportData.notes}/>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Footer */}
+        <div style={{borderTop:"2px solid #333",paddingTop:12,marginTop:16,fontSize:11,color:"#666",textAlign:"center"}}>
+          <p style={{margin:"4px 0"}}>Generated by PANOPTES-ICU Clinical Decision Support System</p>
+          <p style={{margin:"4px 0",color:"#c0392b",fontWeight:600}}>FOR CLINICAL USE ONLY — Always verify with attending physician</p>
+          <p style={{margin:"8px 0",borderTop:"1px solid #999",paddingTop:8}}>Attending Signature: _________________ | Date: _________________</p>
         </div>
       </div>
     </div>
@@ -488,7 +442,6 @@ const vitWarn=(v,lo,hi)=>v>hi||v<lo;
         <div className="flex gap-2 flex-wrap">
           <button onClick={()=>setTab("scoring")} className="bg-blue-500 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-blue-600">📋 Score</button>
           <button onClick={()=>{predict("sepsis");setTab("predict");}} className="bg-red-500 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-red-600">🦠 AI</button>
-          <button onClick={()=>setTab("report")} className="bg-emerald-500 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-emerald-600">🧾 Report</button>
         </div>
       </div>
     </div>
@@ -572,29 +525,7 @@ const vitWarn=(v,lo,hi)=>v>hi||v<lo;
       </div>
     </div>
 
-    {/* Severity Score Cards */}
-    <div>
-      <h3 className="font-bold text-gray-700 mb-3">📊 Quick Severity Scores <span className="text-xs font-normal text-gray-400">(auto-calculated from admission values)</span></h3>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          {label:"APACHE II",score:apII.score,sub:apII.cat,extra:`${apII.mortality}% mortality`,color:apII.score<10?"green":apII.score<20?"yellow":apII.score<30?"orange":"red"},
-          {label:"SOFA",score:sfII.score,sub:sfII.cat,extra:`${sfII.score<=1?"Minimal":sfII.score<=5?"Mild dysfunction":"Multi-organ risk"}`,color:sfII.score<=1?"green":sfII.score<=5?"yellow":sfII.score<=9?"orange":"red"},
-          {label:"qSOFA",score:`${qsII.score}/3`,sub:qsII.high?"HIGH RISK":"Low Risk",extra:qsII.high?"Initiate sepsis protocol":"Continue monitoring",color:qsII.high?"red":"green"},
-          {label:"NEWS",score:nwII.score,sub:nwII.risk+" Risk",extra:nwII.risk==="High"?"Urgent clinical review":nwII.risk==="Medium"?"Increased monitoring":"Routine",color:nwII.risk==="Low"?"green":nwII.risk==="Medium"?"yellow":"red"},
-        ].map((s,i)=>{
-          const bg={green:"bg-green-50 border-green-300",yellow:"bg-yellow-50 border-yellow-300",orange:"bg-orange-50 border-orange-300",red:"bg-red-50 border-red-300"}[s.color];
-          const tc={green:"text-green-700",yellow:"text-yellow-700",orange:"text-orange-700",red:"text-red-700"}[s.color];
-          return(
-            <div key={i} className={`rounded-xl border-2 p-4 ${bg}`}>
-              <p className="text-xs font-bold text-gray-500 uppercase mb-1">{s.label}</p>
-              <p className={`text-3xl font-black ${tc}`}>{s.score}</p>
-              <p className={`text-xs font-bold mt-1 ${tc}`}>{s.sub}</p>
-              <p className="text-xs text-gray-500 mt-1">{s.extra}</p>
-            </div>
-          );
-        })}
-      </div>
-    </div>
+
 
     {/* Lab summary tiles */}
     <div className="bg-white rounded-2xl border p-4">
@@ -982,6 +913,24 @@ export default function App() {
         const vr=await axios.get(`${API}/patients/${p.patient_id}/vitals?limit=24`);
         const vArr=toArr(vr.data,"vitals"); setVitals(vArr);
         const lv=vArr.length>0?vArr[vArr.length-1]:{};
+        
+        // ✅ NEW: Load admission vitals into vitalsReport form
+        setVitalsReport(prev=>({...prev,
+          sbp:lv.sbp||lv.systolic_bp||p.sbp||"",
+          dbp:lv.dbp||lv.diastolic_bp||p.dbp||"",
+          hr:lv.heart_rate||lv.hr||p.hr||"",
+          rr:lv.resp_rate||lv.respiratory_rate||p.rr||"",
+          spo2:lv.spo2||lv.oxygen_saturation||p.spo2||"",
+          temp:lv.temperature||lv.temp||p.temp||"",
+          gcs:lv.gcs||p.gcs||"15",
+          hb:lv.hemoglobin||lv.hb||p.hb||"",
+          sugar:lv.glucose||lv.blood_sugar||p.sugar||"",
+          creatinine:lv.creatinine||p.creatinine||"",
+          platelets:lv.platelets||p.platelets||"",
+          wbc:lv.wbc||p.wbc||"",
+          lactate:lv.lactate||p.lactate||"",
+        }));
+        
         setReportData(prev=>({...prev,
           sbp:lv.sbp||lv.systolic_bp||"",dbp:lv.dbp||lv.diastolic_bp||"",
           hr:lv.heart_rate||lv.hr||"",rr:lv.resp_rate||lv.respiratory_rate||"",
@@ -1225,7 +1174,7 @@ export default function App() {
           {id:"alerts",label:`🚨 Alerts${alerts.length>0?` (${alerts.length})`:""}`},
           {id:"scoring",label:"🧮 Scoring"},
           {id:"stewardship",label:"🦠 Antimicrobial Stewardship"},
-          {id:"results",label:"📈 Results"},
+          {id:"results",label:"📋 Patient Summary"},
           {id:"report",label:"🧾 ICU Report"},
         ].map(n=>(
           <button key={n.id} onClick={()=>setTab(n.id)} className={`px-4 py-3 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${tab===n.id?"border-blue-600 text-blue-600":"border-transparent text-gray-600 hover:text-blue-500"}`}>{n.label}</button>
@@ -1436,16 +1385,17 @@ export default function App() {
 
                         {/* Lab Summary */}
                         <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
-                          <div className="bg-teal-700 px-4 py-2 flex justify-between items-center"><span className="text-white font-bold text-xs uppercase">🔬 Admission Lab Summary</span><span className="text-teal-200 text-xs">From admission form · Red = abnormal</span></div>
+                          <div className="bg-teal-700 px-4 py-2 flex justify-between items-center"><span className="text-white font-bold text-xs uppercase">🔬 Admission Lab Summary</span><span className="text-teal-200 text-xs">Live vitals · Red = abnormal</span></div>
                           <div className="p-4">
                             <div className="grid grid-cols-3 gap-3">
-                              {[{l:"Heart Rate",v:selected.hr,u:"bpm",w:parseFloat(selected.hr)>120||parseFloat(selected.hr)<50,icon:"❤️"},{l:"Blood Pressure",v:selected.sbp&&selected.dbp?`${selected.sbp}/${selected.dbp}`:"",u:"mmHg",w:parseFloat(selected.sbp)<90,icon:"🩸"},{l:"SpO₂",v:selected.spo2,u:"%",w:parseFloat(selected.spo2)<94,icon:"🫁"},{l:"Blood Sugar",v:selected.sugar,u:"mg/dL",w:parseFloat(selected.sugar)>200||parseFloat(selected.sugar)<70,icon:"🍬"},{l:"Hemoglobin",v:selected.hb,u:"g/dL",w:parseFloat(selected.hb)<8,icon:"🔴"},{l:"WBC",v:selected.wbc,u:"×10³",w:parseFloat(selected.wbc)>11,icon:"⬜"},{l:"Creatinine",v:selected.creatinine,u:"mg/dL",w:parseFloat(selected.creatinine)>1.5,icon:"🫘"},{l:"Lactate",v:selected.lactate,u:"mmol/L",w:parseFloat(selected.lactate)>2,icon:"⚗️"},{l:"Platelets",v:selected.platelets,u:"×10³",w:parseFloat(selected.platelets)<100,icon:"🟡"}].map((item,i)=>(
-                                <div key={i} className={`rounded-xl border-2 p-3 ${item.w&&item.v?"bg-red-50 border-red-300":"bg-gray-50 border-gray-200"}`}>
+                              {[{l:"Heart Rate",v:vitalsReport.hr||selected.hr,u:"bpm",w:(parseFloat(vitalsReport.hr)||parseFloat(selected.hr))>120||(parseFloat(vitalsReport.hr)||parseFloat(selected.hr))<50,icon:"❤️"},{l:"Blood Pressure",v:(vitalsReport.sbp||selected.sbp)&&(vitalsReport.dbp||selected.dbp)?`${vitalsReport.sbp||selected.sbp}/${vitalsReport.dbp||selected.dbp}`:"",u:"mmHg",w:(parseFloat(vitalsReport.sbp)||parseFloat(selected.sbp))<90,icon:"🩸"},{l:"SpO₂",v:vitalsReport.spo2||selected.spo2,u:"%",w:(parseFloat(vitalsReport.spo2)||parseFloat(selected.spo2))<94,icon:"🫁"},{l:"Respiratory Rate",v:vitalsReport.rr||selected.rr,u:"/min",w:(parseFloat(vitalsReport.rr)||parseFloat(selected.rr))>24,icon:"💨"},{l:"Temperature",v:vitalsReport.temp||selected.temp,u:"°C",w:(parseFloat(vitalsReport.temp)||parseFloat(selected.temp))>38.5,icon:"🌡️"},{l:"Blood Sugar",v:vitalsReport.sugar||selected.sugar,u:"mg/dL",w:(parseFloat(vitalsReport.sugar)||parseFloat(selected.sugar))>200||(parseFloat(vitalsReport.sugar)||parseFloat(selected.sugar))<70,icon:"🍬"},{l:"Hemoglobin",v:vitalsReport.hb||selected.hb,u:"g/dL",w:(parseFloat(vitalsReport.hb)||parseFloat(selected.hb))<8,icon:"🔴"},{l:"WBC",v:vitalsReport.wbc||selected.wbc,u:"×10³",w:(parseFloat(vitalsReport.wbc)||parseFloat(selected.wbc))>11,icon:"⬜"},{l:"Creatinine",v:vitalsReport.creatinine||selected.creatinine,u:"mg/dL",w:(parseFloat(vitalsReport.creatinine)||parseFloat(selected.creatinine))>1.5,icon:"🫘"},{l:"Lactate",v:vitalsReport.lactate||selected.lactate,u:"mmol/L",w:(parseFloat(vitalsReport.lactate)||parseFloat(selected.lactate))>2,icon:"⚗️"},{l:"Platelets",v:vitalsReport.platelets||selected.platelets,u:"×10³",w:(parseFloat(vitalsReport.platelets)||parseFloat(selected.platelets))<100,icon:"🟡"}].map((item,i)=>{
+                                const displayVal = item.v||"—";
+                                return(<div key={i} className={`rounded-xl border-2 p-3 ${item.w&&item.v?"bg-red-50 border-red-300":"bg-gray-50 border-gray-200"}`}>
                                   <div className="flex justify-between items-start mb-1"><p className="text-xs text-gray-500 font-medium">{item.icon} {item.l}</p>{item.w&&item.v&&<span className="text-xs bg-red-100 text-red-600 px-1.5 rounded-full font-bold">⚠️</span>}</div>
-                                  <p className={`text-xl font-black ${item.w&&item.v?"text-red-600":"text-gray-800"}`}>{item.v||"—"}</p>
+                                  <p className={`text-xl font-black ${item.w&&item.v?"text-red-600":"text-gray-800"}`}>{displayVal}</p>
                                   <p className="text-xs text-gray-400">{item.u}</p>
-                                </div>
-                              ))}
+                                </div>);
+                              })}
                             </div>
                           </div>
                         </div>
@@ -1536,7 +1486,6 @@ export default function App() {
                   </div>
                   <div className="flex gap-2">
                     <button onClick={()=>setVitalsTab("current")} className={`px-4 py-2 rounded-xl text-sm font-bold border-2 transition-all ${vitalsTab==="current"?"border-blue-500 bg-blue-50 text-blue-700":"border-gray-200 text-gray-500 hover:border-blue-300"}`}>📝 Enter Vitals</button>
-                    <button onClick={()=>setVitalsTab("history")} className={`px-4 py-2 rounded-xl text-sm font-bold border-2 transition-all ${vitalsTab==="history"?"border-teal-500 bg-teal-50 text-teal-700":"border-gray-200 text-gray-500 hover:border-teal-300"}`}>🕐 History ({vitalsHistory.filter(h=>h.patient_id===selected.patient_id).length})</button>
                   </div>
                 </div>
 
@@ -1625,6 +1574,30 @@ export default function App() {
                     <div className="bg-white rounded-xl border shadow-sm p-4">
                       <div className="flex gap-3">
                         <button onClick={()=>{
+                          // ✅ NEW: Save vitals to selected patient object
+                          const updatedPatient = {
+                            ...selected,
+                            hr: vitalsReport.hr || selected.hr,
+                            sbp: vitalsReport.sbp || selected.sbp,
+                            dbp: vitalsReport.dbp || selected.dbp,
+                            spo2: vitalsReport.spo2 || selected.spo2,
+                            rr: vitalsReport.rr || selected.rr,
+                            temp: vitalsReport.temp || selected.temp,
+                            gcs: vitalsReport.gcs || selected.gcs,
+                            hb: vitalsReport.hb || selected.hb,
+                            sugar: vitalsReport.sugar || selected.sugar,
+                            creatinine: vitalsReport.creatinine || selected.creatinine,
+                            platelets: vitalsReport.platelets || selected.platelets,
+                            wbc: vitalsReport.wbc || selected.wbc,
+                            lactate: vitalsReport.lactate || selected.lactate,
+                          };
+                          setSelected(updatedPatient);
+                          
+                          // Update in hospitalPatients list
+                          const updated = hospitalPatients.map(p => p.patient_id === selected.patient_id ? updatedPatient : p);
+                          setHospitalPatients(updated);
+                          localStorage.setItem("icu_hospital_patients", JSON.stringify(updated));
+                          
                           // Save to history
                           const entry = {...vitalsReport, patient_id:selected.patient_id, patient_name:selected.name, savedAt:new Date().toISOString(), recordedBy:vitalsReport.recordedBy||currentUser?.name||"Unknown"};
                           const newHistory = [entry, ...vitalsHistory];
@@ -1686,7 +1659,6 @@ export default function App() {
                           }));
                           setMurray(prev=>({...prev,pao2_fio2_ratio:pf}));
                           notify("✅ Vitals saved & all scoring systems auto-populated!","success");
-                          setVitalsTab("history");
                         }} className="flex-1 bg-gradient-to-r from-blue-700 to-teal-600 text-white py-3 rounded-xl font-bold text-sm hover:opacity-90 shadow">
                           💾 Save Vitals & Auto-Populate Scoring
                         </button>
@@ -1700,45 +1672,6 @@ export default function App() {
                   </div>
                 )}
 
-                {vitalsTab==="history"&&(
-                  <div>
-                    {vitalsHistory.filter(h=>h.patient_id===selected.patient_id).length===0?(
-                      <div className="flex flex-col items-center py-16 text-center">
-                        <span className="text-5xl mb-3">📭</span>
-                        <p className="text-gray-500 font-medium">No vitals recorded yet</p>
-                        <p className="text-sm text-gray-400 mt-1">Switch to "Enter Vitals" to record the first entry</p>
-                        <button onClick={()=>setVitalsTab("current")} className="mt-4 bg-blue-600 text-white px-5 py-2 rounded-xl text-sm font-bold hover:bg-blue-700">📝 Enter Vitals Now</button>
-                      </div>
-                    ):(
-                      <div className="space-y-3">
-                        {vitalsHistory.filter(h=>h.patient_id===selected.patient_id).map((entry,i)=>(
-                          <div key={i} className="bg-white rounded-xl border shadow-sm p-4">
-                            <div className="flex justify-between items-start mb-3">
-                              <div>
-                                <p className="font-bold text-gray-800 text-sm">{new Date(entry.savedAt).toLocaleString("en-IN",{dateStyle:"medium",timeStyle:"short"})}</p>
-                                <p className="text-xs text-gray-400">Recorded by {entry.recordedBy||"Unknown"}{entry.notes&&<span> · {entry.notes}</span>}</p>
-                              </div>
-                              <button onClick={()=>{
-                                setVitalsReport({...entry});
-                                setVitalsTab("current");
-                                notify("Loaded previous entry — edit and re-save","success");
-                              }} className="text-xs bg-blue-50 text-blue-600 border border-blue-200 px-3 py-1 rounded-lg hover:bg-blue-100 font-medium">Load & Edit</button>
-                            </div>
-                            <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-                              {[["HR",entry.hr,"bpm",parseFloat(entry.hr)>120||parseFloat(entry.hr)<50],["BP",entry.sbp&&entry.dbp?`${entry.sbp}/${entry.dbp}`:"—","mmHg",parseFloat(entry.sbp)<90],["SpO₂",entry.spo2,"%",parseFloat(entry.spo2)<94],["Temp",entry.temp,"°C",parseFloat(entry.temp)>38.5],["RR",entry.rr,"/min",parseFloat(entry.rr)>24],["GCS",entry.gcs,"/15",parseFloat(entry.gcs)<9],["Lactate",entry.lactate,"mmol/L",parseFloat(entry.lactate)>2],["Creatinine",entry.creatinine,"mg/dL",parseFloat(entry.creatinine)>1.5],["WBC",entry.wbc,"×10³",parseFloat(entry.wbc)>11],["Hb",entry.hb,"g/dL",parseFloat(entry.hb)<8],["Platelets",entry.platelets,"×10³",parseFloat(entry.platelets)<100],["Bilirubin",entry.bilirubin,"mg/dL",parseFloat(entry.bilirubin)>1.2]].map(([l,v,u,warn])=>v&&v!=="—"?(
-                                <div key={l} className={`rounded-lg p-2 border text-center ${warn?"bg-red-50 border-red-200":"bg-gray-50 border-gray-100"}`}>
-                                  <p className="text-xs text-gray-400">{l}</p>
-                                  <p className={`text-sm font-bold ${warn?"text-red-600":"text-gray-800"}`}>{v}</p>
-                                  <p className="text-xs text-gray-400">{u}</p>
-                                </div>
-                              ):null)}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
             )}
           </div>
@@ -1939,29 +1872,9 @@ export default function App() {
               );
             })()}
             <h2 className="text-lg font-bold text-gray-800 mb-4">📈 Scoring Results</h2>
-            {Object.keys(scores).length===0?<div className="text-center py-16 text-gray-400"><div className="text-5xl mb-3">📋</div><p>No scores yet</p></div>:(
+            {Object.keys(scores).length===0?<div className="text-center py-16 text-gray-400"><div className="text-5xl mb-3">📋</div><p>No scores yet - Go to Scoring tab to calculate</p></div>:(
               <div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                  {scores.apacheii&&<Card title="APACHE II" value={scores.apacheii.total_score} sub={`${scores.apacheii.mortality_risk}% — ${scores.apacheii.risk_category}`} color="red" icon="🔴"/>}
-                  {scores.sofa&&<Card title="SOFA" value={scores.sofa.total_score} sub={scores.sofa.risk_category} color="orange" icon="🟠"/>}
-                  {scores.qsofa&&<Card title="qSOFA" value={scores.qsofa.total_score} sub={scores.qsofa.high_risk?"⚠️ High":"✅ Low"} color="yellow" icon="🟡"/>}
-                  {scores.gcs&&<Card title="GCS" value={scores.gcs.total_score} sub={scores.gcs.severity} color="blue" icon="🧠"/>}
-                  {scores.ranson&&<Card title="Ranson" value={scores.ranson.total_score} sub={scores.ranson.risk_category} color="purple"/>}
-                  {scores.saps&&<Card title="SAPS" value={scores.saps.total_score} sub={`${scores.saps.mortality_risk}%`} color="green"/>}
-                  {scores.mods&&<Card title="MODS" value={scores.mods.total_score} sub={scores.mods.risk_category} color="red"/>}
-                  {scores.murray&&<Card title="Murray" value={scores.murray.total_score} sub={scores.murray.lung_injury_category} color="blue"/>}
-                  {scores.alvarado&&<Card title="Alvarado" value={scores.alvarado.total_score} sub={scores.alvarado.risk_category} color="green"/>}
-                </div>
                 {radarData.some(d=>d.v>0)&&<div className="bg-white rounded-xl p-5 shadow-sm border mb-5"><h3 className="font-bold text-gray-700 mb-4">Risk Profile Radar</h3><ResponsiveContainer width="100%" height={260}><RadarChart data={radarData}><PolarGrid/><PolarAngleAxis dataKey="s"/><PolarRadiusAxis domain={[0,71]}/><Radar dataKey="v" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.3}/><Tooltip/></RadarChart></ResponsiveContainer></div>}
-                <div className="bg-white rounded-xl p-5 shadow-sm border">
-                  <h3 className="font-bold text-gray-700 mb-4">🧠 Clinical Interpretation</h3>
-                  <div className="space-y-3">
-                    {scores.apacheii&&<div className={`p-4 rounded-xl border-l-4 ${scores.apacheii.total_score>=25?"border-red-500 bg-red-50":scores.apacheii.total_score>=15?"border-orange-500 bg-orange-50":"border-green-500 bg-green-50"}`}><div className="flex justify-between items-start"><div><p className="font-bold text-gray-800">APACHE II — {scores.apacheii.total_score}</p><p className="text-sm text-gray-600">{scores.apacheii.risk_category} — {scores.apacheii.mortality_risk}% mortality</p></div><Badge level={scores.apacheii.total_score>=25?"HIGH":scores.apacheii.total_score>=15?"MODERATE":"LOW"}/></div></div>}
-                    {scores.sofa&&<div className={`p-4 rounded-xl border-l-4 ${scores.sofa.total_score>=11?"border-red-500 bg-red-50":scores.sofa.total_score>=6?"border-orange-500 bg-orange-50":"border-green-500 bg-green-50"}`}><div className="flex justify-between items-start"><div><p className="font-bold text-gray-800">SOFA — {scores.sofa.total_score}</p><p className="text-sm text-gray-600">{scores.sofa.risk_category}</p></div><Badge level={scores.sofa.total_score>=11?"CRITICAL":scores.sofa.total_score>=6?"HIGH":"MODERATE"}/></div></div>}
-                    {scores.qsofa&&<div className={`p-4 rounded-xl border-l-4 ${scores.qsofa.high_risk?"border-red-500 bg-red-50":"border-green-500 bg-green-50"}`}><div className="flex justify-between items-start"><div><p className="font-bold text-gray-800">qSOFA — {scores.qsofa.total_score}/3</p><p className="text-sm text-gray-600">{scores.qsofa.high_risk?"⚠️ High risk — Initiate sepsis evaluation":"✅ Low risk"}</p></div><Badge level={scores.qsofa.high_risk?"HIGH":"LOW"}/></div></div>}
-                    {scores.gcs&&<div className={`p-4 rounded-xl border-l-4 ${scores.gcs.total_score<9?"border-red-500 bg-red-50":scores.gcs.total_score<13?"border-orange-500 bg-orange-50":"border-green-500 bg-green-50"}`}><div className="flex justify-between items-start"><div><p className="font-bold text-gray-800">GCS — {scores.gcs.total_score}/15</p><p className="text-sm text-gray-600">{scores.gcs.severity}</p></div><Badge level={scores.gcs.total_score<9?"CRITICAL":scores.gcs.total_score<13?"HIGH":"LOW"}/></div></div>}
-                  </div>
-                </div>
               </div>
             )}
           </div>
