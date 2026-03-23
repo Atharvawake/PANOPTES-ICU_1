@@ -5,7 +5,7 @@ import { AreaChart, Area, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRad
 const API = "http://localhost:8001/api";
 const toArr = (d, key) => Array.isArray(d) ? d : (d && d[key]) ? d[key] : [];
 
-// ── Score Calculators ──────────────────────────────────────────
+//  Score Calculators 
 function calcAPACHEII(p) {
   let s=0;
   const age=parseFloat(p.age)||0;
@@ -64,7 +64,7 @@ function calcNEWS(p) {
   return {score:s,risk:s<=4?"Low":s<=6?"Medium":"High"};
 }
 
-// ── UI Helpers ─────────────────────────────────────────────────
+//  UI Helpers 
 function Badge({level}){
   const c={LOW:"bg-green-100 text-green-800 border-green-300",MODERATE:"bg-yellow-100 text-yellow-800 border-yellow-300",HIGH:"bg-orange-100 text-orange-800 border-orange-300",CRITICAL:"bg-red-100 text-red-800 border-red-300",NORMAL:"bg-green-100 text-green-800 border-green-300"};
   return <span className={`px-3 py-1 rounded-full text-xs font-bold border ${c[level]||c.LOW}`}>{level}</span>;
@@ -128,7 +128,7 @@ function CalibBadge({model, auroc}){
   );
 }
 
-// ── Prediction Cards ───────────────────────────────────────────
+//  Prediction Cards 
 function SepsisCard({data, outcome}){
   if(!data)return null;
   const prob=data.probability||0, pct=Math.round(prob*100);
@@ -143,7 +143,7 @@ function SepsisCard({data, outcome}){
     <div className={`rounded-xl border-2 p-5 ${isHigh?"border-red-400 bg-red-50":isMod?"border-orange-400 bg-orange-50":"border-green-400 bg-green-50"}`}>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <span className="text-2xl">🦠</span>
+          <span className="text-2xl"></span>
           <div>
             <h3 className="font-bold text-gray-800 text-lg">Sepsis Risk</h3>
             <CalibBadge model="GRU-D" auroc="0.87"/>
@@ -151,8 +151,8 @@ function SepsisCard({data, outcome}){
         </div>
         <div className="flex flex-col items-end gap-1">
           <Badge level={data.risk_level||"LOW"}/>
-          {predCorrect===true&&<span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">✅ Correct Prediction</span>}
-          {predCorrect===false&&<span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-bold">❌ Incorrect Prediction</span>}
+          {predCorrect===true&&<span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold"> Correct Prediction</span>}
+          {predCorrect===false&&<span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-bold"> Incorrect Prediction</span>}
         </div>
       </div>
       <ProbBar prob={prob} label="Sepsis Probability"/>
@@ -162,7 +162,7 @@ function SepsisCard({data, outcome}){
       </div>
       {outcome?.sepsisConfirmed&&outcome.sepsisConfirmed!=="unknown"&&(
         <div className="mt-2 bg-white border rounded-lg px-3 py-2 text-xs text-gray-600">
-          <strong>Recorded Outcome:</strong> Sepsis {outcome.sepsisConfirmed==="yes"?"CONFIRMED ✅":outcome.sepsisConfirmed==="no"?"RULED OUT ❌":"SUSPECTED 🔶"}
+          <strong>Recorded Outcome:</strong> Sepsis {outcome.sepsisConfirmed==="yes"?"CONFIRMED ":outcome.sepsisConfirmed==="no"?"RULED OUT ":"SUSPECTED "}
         </div>
       )}
     </div>
@@ -181,7 +181,7 @@ function DeteriorationCard({data}){
     <div className={`rounded-xl border-2 p-5 ${det?"border-red-400 bg-red-50":"border-green-400 bg-green-50"}`}>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <span className="text-2xl">📉</span>
+          <span className="text-2xl"></span>
           <div>
             <h3 className="font-bold text-gray-800 text-lg">Clinical Deterioration</h3>
             <CalibBadge model="VAE Anomaly" auroc="0.79"/>
@@ -190,7 +190,7 @@ function DeteriorationCard({data}){
         <Badge level={data.severity||"NORMAL"}/>
       </div>
       <div className={`text-center py-3 rounded-xl mb-3 ${det?"bg-red-200":"bg-green-200"}`}>
-        <p className="text-3xl mb-1">{det?"⚠️":"✅"}</p>
+        <p className="text-3xl mb-1">{det?"":""}</p>
         <p className={`text-xl font-bold ${det?"text-red-700":"text-green-700"}`}>{det?"DETERIORATING":"STABLE"}</p>
       </div>
       <div className="mb-1">
@@ -222,7 +222,7 @@ function MortalityCard({data, outcome}){
     <div className={`rounded-xl border-2 p-5 ${isHigh?"border-red-400 bg-red-50":"border-blue-400 bg-blue-50"}`}>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <span className="text-2xl">💀</span>
+          <span className="text-2xl"></span>
           <div>
             <h3 className="font-bold text-gray-800 text-lg">Mortality Risk</h3>
             <CalibBadge model="APACHE II + SOFA" auroc="0.82"/>
@@ -230,8 +230,8 @@ function MortalityCard({data, outcome}){
         </div>
         <div className="flex flex-col items-end gap-1">
           <Badge level={data.risk_level||"LOW"}/>
-          {predCorrect===true&&<span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">✅ Correct</span>}
-          {predCorrect===false&&<span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-bold">❌ Incorrect</span>}
+          {predCorrect===true&&<span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold"> Correct</span>}
+          {predCorrect===false&&<span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-bold"> Incorrect</span>}
         </div>
       </div>
       <ProbBar prob={prob} label="Estimated Mortality Risk"/>
@@ -241,7 +241,7 @@ function MortalityCard({data, outcome}){
       </div>
       {outcome?.mortalityOutcome&&(
         <div className="mt-2 bg-white border rounded-lg px-3 py-2 text-xs text-gray-600">
-          <strong>Recorded Outcome:</strong> {outcome.mortalityOutcome==="survived"?"Survived ✅":outcome.mortalityOutcome==="expired"?"Expired ❌":outcome.mortalityOutcome}
+          <strong>Recorded Outcome:</strong> {outcome.mortalityOutcome==="survived"?"Survived ":outcome.mortalityOutcome==="expired"?"Expired ":outcome.mortalityOutcome}
           {outcome.icuDays&&<span className="ml-2 text-gray-400">· ICU Stay: {outcome.icuDays}d</span>}
         </div>
       )}
@@ -250,16 +250,16 @@ function MortalityCard({data, outcome}){
 }
 function OrganCard({data}){
   if(!data)return null;
-  const organs=[{key:"respiratory",label:"Respiratory",icon:"🫁"},{key:"cardiovascular",label:"Cardiovascular",icon:"🫀"},{key:"renal",label:"Renal",icon:"🟤"},{key:"hepatic",label:"Liver",icon:"🟡"},{key:"coagulation",label:"Coagulation",icon:"🩸"},{key:"neurological",label:"Neurological",icon:"🧠"}];
-  return(<div className="rounded-xl border-2 border-blue-400 bg-blue-50 p-5"><div className="flex items-center justify-between mb-4"><div className="flex items-center gap-2"><span className="text-2xl">🫀</span><div><h3 className="font-bold text-gray-800 text-lg">Organ Failure Risk</h3><p className="text-xs text-gray-500">SOFA Multi-Organ</p></div></div><Badge level={data.risk_level||"LOW"}/></div><div className="grid grid-cols-2 gap-2">{organs.map(o=>{const pct=Math.round((data.organ_risks?.[o.key]||data.probability||0.3)*100),color=pct>60?"bg-red-500":pct>40?"bg-orange-400":"bg-green-400";return(<div key={o.key} className="bg-white rounded-lg p-2 border"><div className="flex justify-between items-center mb-1"><span className="text-xs text-gray-600">{o.icon} {o.label}</span><span className={`text-xs font-bold ${pct>60?"text-red-600":pct>40?"text-orange-600":"text-green-600"}`}>{pct}%</span></div><div className="w-full bg-gray-200 rounded-full h-1.5"><div className={`h-1.5 rounded-full ${color}`} style={{width:`${pct}%`}}/></div></div>);})}</div></div>);
+  const organs=[{key:"respiratory",label:"Respiratory",icon:""},{key:"cardiovascular",label:"Cardiovascular",icon:""},{key:"renal",label:"Renal",icon:""},{key:"hepatic",label:"Liver",icon:""},{key:"coagulation",label:"Coagulation",icon:""},{key:"neurological",label:"Neurological",icon:""}];
+  return(<div className="rounded-xl border-2 border-blue-400 bg-blue-50 p-5"><div className="flex items-center justify-between mb-4"><div className="flex items-center gap-2"><span className="text-2xl"></span><div><h3 className="font-bold text-gray-800 text-lg">Organ Failure Risk</h3><p className="text-xs text-gray-500">SOFA Multi-Organ</p></div></div><Badge level={data.risk_level||"LOW"}/></div><div className="grid grid-cols-2 gap-2">{organs.map(o=>{const pct=Math.round((data.organ_risks?.[o.key]||data.probability||0.3)*100),color=pct>60?"bg-red-500":pct>40?"bg-orange-400":"bg-green-400";return(<div key={o.key} className="bg-white rounded-lg p-2 border"><div className="flex justify-between items-center mb-1"><span className="text-xs text-gray-600">{o.icon} {o.label}</span><span className={`text-xs font-bold ${pct>60?"text-red-600":pct>40?"text-orange-600":"text-green-600"}`}>{pct}%</span></div><div className="w-full bg-gray-200 rounded-full h-1.5"><div className={`h-1.5 rounded-full ${color}`} style={{width:`${pct}%`}}/></div></div>);})}</div></div>);
 }
 function ShapCard({data}){
   if(!data||!data.top_features)return null;
   const features=data.top_features.slice(0,8),maxVal=Math.max(...features.map(f=>Math.abs(f.importance||f.shap_value||0)));
-  return(<div className="rounded-xl border-2 border-purple-400 bg-purple-50 p-5"><div className="flex items-center gap-2 mb-4"><span className="text-2xl">🔍</span><div><h3 className="font-bold text-gray-800 text-lg">AI Explanation</h3><p className="text-xs text-gray-500">SHAP Feature Importance</p></div></div><div className="space-y-2">{features.map((f,i)=>{const val=Math.abs(f.importance||f.shap_value||0),pct=maxVal>0?Math.round((val/maxVal)*100):0,inc=f.direction==="increases";return(<div key={i} className="bg-white rounded-lg p-3 border"><div className="flex justify-between items-center mb-1"><span className="text-sm font-medium text-gray-700">{f.feature}</span><span className={`text-xs font-bold px-2 py-0.5 rounded-full ${inc?"bg-red-100 text-red-700":"bg-green-100 text-green-700"}`}>{inc?"↑ Increases":"↓ Reduces"} risk</span></div><div className="w-full bg-gray-200 rounded-full h-2"><div className={`h-2 rounded-full ${inc?"bg-red-400":"bg-green-400"}`} style={{width:`${pct}%`}}/></div></div>);})}</div></div>);
+  return(<div className="rounded-xl border-2 border-purple-400 bg-purple-50 p-5"><div className="flex items-center gap-2 mb-4"><span className="text-2xl"></span><div><h3 className="font-bold text-gray-800 text-lg">AI Explanation</h3><p className="text-xs text-gray-500">SHAP Feature Importance</p></div></div><div className="space-y-2">{features.map((f,i)=>{const val=Math.abs(f.importance||f.shap_value||0),pct=maxVal>0?Math.round((val/maxVal)*100):0,inc=f.direction==="increases";return(<div key={i} className="bg-white rounded-lg p-3 border"><div className="flex justify-between items-center mb-1"><span className="text-sm font-medium text-gray-700">{f.feature}</span><span className={`text-xs font-bold px-2 py-0.5 rounded-full ${inc?"bg-red-100 text-red-700":"bg-green-100 text-green-700"}`}>{inc?"↑ Increases":"↓ Reduces"} risk</span></div><div className="w-full bg-gray-200 rounded-full h-2"><div className={`h-2 rounded-full ${inc?"bg-red-400":"bg-green-400"}`} style={{width:`${pct}%`}}/></div></div>);})}</div></div>);
 }
 
-// ── ICU PDF Report ─────────────────────────────────────────────
+//  ICU PDF Report 
 function ICUReport({selected,dashboard,predictions,scores,vitals,reportData,historyData,abxResult,nutritionResult,onBack}){
   const p=parseFloat;
   const ap=calcAPACHEII({age:selected?.age,heart_rate:reportData.hr,mean_arterial_pressure:reportData.map,respiratory_rate:reportData.rr,temperature:reportData.temp,creatinine:reportData.creatinine,platelets:reportData.platelets,gcs:reportData.gcs,spo2:reportData.spo2,chronic_health:reportData.chronic_health});
@@ -280,7 +280,7 @@ function ICUReport({selected,dashboard,predictions,scores,vitals,reportData,hist
       
       <div className="no-print" style={{marginBottom:16,display:"flex",gap:8,justifyContent:"space-between"}}>
         <button onClick={onBack} style={{padding:"8px 16px",background:"#ddd",border:"none",cursor:"pointer",borderRadius:4}}>← Back</button>
-        <button onClick={()=>window.print()} style={{padding:"8px 16px",background:"#1e3a5f",color:"white",border:"none",cursor:"pointer",borderRadius:4,fontWeight:600}}>🖨️ Print / Save PDF</button>
+        <button onClick={()=>window.print()} style={{padding:"8px 16px",background:"#1e3a5f",color:"white",border:"none",cursor:"pointer",borderRadius:4,fontWeight:600}}> Print / Save PDF</button>
       </div>
 
       <div className="report" style={{maxWidth:900,margin:"0 auto",background:"white"}}>
@@ -389,7 +389,7 @@ function ICUReport({selected,dashboard,predictions,scores,vitals,reportData,hist
   );
 }
 
-// ── DASHBOARD VIEW COMPONENT ───────────────────────────────────
+//  DASHBOARD VIEW COMPONENT 
 function DashboardView({selected, alerts, predictions, predict, setTab}) {
 // Build live vitals from selected hospital patient
 const lv = selected;
@@ -418,30 +418,30 @@ const vitWarn=(v,lo,hi)=>v>hi||v<lo;
 
   return (
   <div className="space-y-5">
-    {alerts.length>0&&<div className="bg-red-50 border-2 border-red-300 rounded-xl p-4 flex items-start gap-3"><span className="text-2xl">🚨</span><div><p className="font-bold text-red-700">{alerts.length} Active Alert(s)</p>{alerts.slice(0,3).map((a,i)=><p key={i} className="text-sm text-red-600 mt-0.5">• {a.message||a.alert_type}</p>)}</div></div>}
+    {alerts.length>0&&<div className="bg-red-50 border-2 border-red-300 rounded-xl p-4 flex items-start gap-3"><span className="text-2xl"></span><div><p className="font-bold text-red-700">{alerts.length} Active Alert(s)</p>{alerts.slice(0,3).map((a,i)=><p key={i} className="text-sm text-red-600 mt-0.5">• {a.message||a.alert_type}</p>)}</div></div>}
 
     {/* Patient Banner */}
     <div className="bg-gradient-to-r from-slate-800 to-slate-700 rounded-2xl p-5 text-white">
       <div className="flex justify-between items-start flex-wrap gap-3">
         <div className="flex items-center gap-4">
-          <div className="bg-white bg-opacity-15 rounded-2xl p-3 text-3xl">🧑‍⚕️</div>
+          <div className="bg-white bg-opacity-15 rounded-2xl p-3 text-3xl"></div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-2xl font-black">{selected.name||selected.patient_id}</h2>
-              <span className="bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">🟢 Active</span>
+              <span className="bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-full"> Active</span>
             </div>
             <p className="text-slate-300 text-sm mt-0.5">{selected.patient_id} · Bed {selected.bed||"—"} · {selected.ward||"ICU"}</p>
             <p className="text-slate-200 text-sm">Age {selected.age} | {selected.gender} | {selected.diagnosis||selected.admitReason||"No diagnosis"}</p>
             <div className="flex gap-2 mt-2 flex-wrap">
               {selected.comorbidities&&<span className="bg-yellow-500 bg-opacity-80 text-xs px-2 py-0.5 rounded-full">{selected.comorbidities}</span>}
-              {selected.allergies&&<span className="bg-red-500 bg-opacity-80 text-xs px-2 py-0.5 rounded-full">⚠️ {selected.allergies}</span>}
+              {selected.allergies&&<span className="bg-red-500 bg-opacity-80 text-xs px-2 py-0.5 rounded-full"> {selected.allergies}</span>}
               {selected.bloodGroup&&<span className="bg-white bg-opacity-20 text-xs px-2 py-0.5 rounded-full">{selected.bloodGroup}</span>}
             </div>
           </div>
         </div>
         <div className="flex gap-2 flex-wrap">
-          <button onClick={()=>setTab("scoring")} className="bg-blue-500 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-blue-600">📋 Score</button>
-          <button onClick={()=>{predict("sepsis");setTab("predict");}} className="bg-red-500 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-red-600">🦠 AI</button>
+          <button onClick={()=>setTab("scoring")} className="bg-blue-500 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-blue-600"> Score</button>
+          <button onClick={()=>{predict("sepsis");setTab("predict");}} className="bg-red-500 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-red-600"> AI</button>
         </div>
       </div>
     </div>
@@ -449,30 +449,30 @@ const vitWarn=(v,lo,hi)=>v>hi||v<lo;
     {/* Live Vital Signs Monitor */}
     <div className="bg-gray-950 rounded-2xl p-5 border border-gray-800">
       <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2"><span className="text-green-400 text-lg font-bold">●</span><h3 className="text-white font-bold">Live Vitals Monitor</h3><span className="text-gray-400 text-xs">Admission values · waveform simulated</span></div>
-        <span className="text-green-400 text-xs font-bold animate-pulse">● MONITORING</span>
+        <div className="flex items-center gap-2"><span className="text-green-400 text-lg font-bold"></span><h3 className="text-white font-bold">Live Vitals Monitor</h3><span className="text-gray-400 text-xs">Admission values · waveform simulated</span></div>
+        <span className="text-green-400 text-xs font-bold animate-pulse"> MONITORING</span>
       </div>
       {/* Big vital tiles */}
       <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mb-5">
         {[
-          {label:"HEART RATE",value:hr,unit:"bpm",color:"#ef4444",warn:hr>120||hr<50,icon:"❤️"},
-          {label:"BLOOD PRESS",value:`${sbp}/${dbp}`,unit:"mmHg",color:"#3b82f6",warn:sbp<90,icon:"🩸"},
-          {label:"SpO₂",value:spo2,unit:"%",color:"#22c55e",warn:spo2<94,icon:"🫁"},
-          {label:"RESP RATE",value:rr,unit:"/min",color:"#a78bfa",warn:rr>24||rr<10,icon:"💨"},
-          {label:"TEMP",value:temp,unit:"°C",color:"#f59e0b",warn:temp>38.5||temp<36,icon:"🌡️"},
-          {label:"MAP",value:map,unit:"mmHg",color:"#06b6d4",warn:map<65,icon:"💗"},
+          {label:"HEART RATE",value:hr,unit:"bpm",color:"#ef4444",warn:hr>120||hr<50,icon:""},
+          {label:"BLOOD PRESS",value:`${sbp}/${dbp}`,unit:"mmHg",color:"#3b82f6",warn:sbp<90,icon:""},
+          {label:"SpO₂",value:spo2,unit:"%",color:"#22c55e",warn:spo2<94,icon:""},
+          {label:"RESP RATE",value:rr,unit:"/min",color:"#a78bfa",warn:rr>24||rr<10,icon:""},
+          {label:"TEMP",value:temp,unit:"°C",color:"#f59e0b",warn:temp>38.5||temp<36,icon:""},
+          {label:"MAP",value:map,unit:"mmHg",color:"#06b6d4",warn:map<65,icon:""},
         ].map((v,i)=>(
           <div key={i} className={`rounded-xl p-3 text-center border ${v.warn?"bg-red-950 border-red-700":"bg-gray-900 border-gray-700"}`}>
             <div className="text-gray-400 text-xs mb-1">{v.label}</div>
             <div className="font-black text-2xl" style={{color:v.warn?"#ef4444":v.color}}>{v.value}</div>
             <div className="text-gray-500 text-xs mt-0.5">{v.unit}</div>
-            {v.warn&&<div className="text-red-400 text-xs font-bold mt-1">⚠️ ALERT</div>}
+            {v.warn&&<div className="text-red-400 text-xs font-bold mt-1"> ALERT</div>}
           </div>
         ))}
       </div>
       {/* HR Waveform */}
       <div className="mb-4">
-        <p className="text-green-400 text-xs font-bold mb-2">❤️ HEART RATE TREND</p>
+        <p className="text-green-400 text-xs font-bold mb-2"> HEART RATE TREND</p>
         <ResponsiveContainer width="100%" height={90}>
           <AreaChart data={wavePoints} margin={{top:0,right:0,bottom:0,left:0}}>
             <defs><linearGradient id="hrGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#ef4444" stopOpacity={0.4}/><stop offset="95%" stopColor="#ef4444" stopOpacity={0}/></linearGradient></defs>
@@ -485,7 +485,7 @@ const vitWarn=(v,lo,hi)=>v>hi||v<lo;
       {/* SpO2 + BP waveforms side by side */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <p className="text-green-400 text-xs font-bold mb-2">🫁 SpO₂ TREND</p>
+          <p className="text-green-400 text-xs font-bold mb-2"> SpO₂ TREND</p>
           <ResponsiveContainer width="100%" height={80}>
             <AreaChart data={wavePoints} margin={{top:0,right:0,bottom:0,left:0}}>
               <defs><linearGradient id="spo2Grad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#22c55e" stopOpacity={0.4}/><stop offset="95%" stopColor="#22c55e" stopOpacity={0}/></linearGradient></defs>
@@ -496,7 +496,7 @@ const vitWarn=(v,lo,hi)=>v>hi||v<lo;
           </ResponsiveContainer>
         </div>
         <div>
-          <p className="text-blue-400 text-xs font-bold mb-2">🩸 BLOOD PRESSURE</p>
+          <p className="text-blue-400 text-xs font-bold mb-2"> BLOOD PRESSURE</p>
           <ResponsiveContainer width="100%" height={80}>
             <AreaChart data={wavePoints} margin={{top:0,right:0,bottom:0,left:0}}>
               <defs>
@@ -513,7 +513,7 @@ const vitWarn=(v,lo,hi)=>v>hi||v<lo;
       </div>
       {/* RR waveform */}
       <div className="mt-4">
-        <p className="text-purple-400 text-xs font-bold mb-2">💨 RESPIRATORY RATE</p>
+        <p className="text-purple-400 text-xs font-bold mb-2"> RESPIRATORY RATE</p>
         <ResponsiveContainer width="100%" height={70}>
           <AreaChart data={wavePoints} margin={{top:0,right:0,bottom:0,left:0}}>
             <defs><linearGradient id="rrGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#a78bfa" stopOpacity={0.4}/><stop offset="95%" stopColor="#a78bfa" stopOpacity={0}/></linearGradient></defs>
@@ -529,21 +529,21 @@ const vitWarn=(v,lo,hi)=>v>hi||v<lo;
 
     {/* Lab summary tiles */}
     <div className="bg-white rounded-2xl border p-4">
-      <h3 className="font-bold text-gray-700 mb-3">🔬 Admission Lab Summary</h3>
+      <h3 className="font-bold text-gray-700 mb-3"> Admission Lab Summary</h3>
       <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
         {[
-          {l:"Hemoglobin",v:selected.hb,u:"g/dL",w:parseFloat(selected.hb)<8,icon:"🔴"},
-          {l:"Blood Sugar",v:selected.sugar,u:"mg/dL",w:parseFloat(selected.sugar)>200||parseFloat(selected.sugar)<70,icon:"🍬"},
-          {l:"Creatinine",v:selected.creatinine,u:"mg/dL",w:parseFloat(selected.creatinine)>1.5,icon:"🫘"},
-          {l:"Platelets",v:selected.platelets,u:"×10³",w:parseFloat(selected.platelets)<100,icon:"🟡"},
-          {l:"WBC",v:selected.wbc,u:"×10³",w:parseFloat(selected.wbc)>11,icon:"⬜"},
-          {l:"Lactate",v:selected.lactate,u:"mmol/L",w:parseFloat(selected.lactate)>2,icon:"⚗️"},
+          {l:"Hemoglobin",v:selected.hb,u:"g/dL",w:parseFloat(selected.hb)<8,icon:""},
+          {l:"Blood Sugar",v:selected.sugar,u:"mg/dL",w:parseFloat(selected.sugar)>200||parseFloat(selected.sugar)<70,icon:""},
+          {l:"Creatinine",v:selected.creatinine,u:"mg/dL",w:parseFloat(selected.creatinine)>1.5,icon:""},
+          {l:"Platelets",v:selected.platelets,u:"×10³",w:parseFloat(selected.platelets)<100,icon:""},
+          {l:"WBC",v:selected.wbc,u:"×10³",w:parseFloat(selected.wbc)>11,icon:""},
+          {l:"Lactate",v:selected.lactate,u:"mmol/L",w:parseFloat(selected.lactate)>2,icon:""},
         ].map((item,i)=>(
           <div key={i} className={`rounded-xl border-2 p-3 text-center ${item.w&&item.v?"bg-red-50 border-red-300":"bg-gray-50 border-gray-200"}`}>
             <p className="text-xs text-gray-400 mb-1">{item.icon} {item.l}</p>
             <p className={`text-lg font-black ${item.w&&item.v?"text-red-600":"text-gray-800"}`}>{item.v||"—"}</p>
             <p className="text-xs text-gray-400">{item.u}</p>
-            {item.w&&item.v&&<p className="text-xs text-red-500 font-bold">⚠️</p>}
+            {item.w&&item.v&&<p className="text-xs text-red-500 font-bold"></p>}
           </div>
         ))}
       </div>
@@ -553,19 +553,18 @@ const vitWarn=(v,lo,hi)=>v>hi||v<lo;
   );
 }
 
-// ── Auth ───────────────────────────────────────────────────────
+//  Auth 
 // Credential store — passwords stored as SHA-256 hashes
 // To add a user: hash their password with SHA-256 and add here
 // SHA-256("icu2024")  = "b2d4b0f0c5f5e6a1e3d9b8c7a4f2e1d0b9c8a7f6e5d4c3b2a1f0e9d8c7b6a5f4" (example)
 // Real hash used below (computed at runtime via Web Crypto API)
 
 const ICU_USERS = [
-  {username:"dr.admin",   name:"Dr. Admin",        role:"Admin",        dept:"Administration",  avatar:"👨‍💼", color:"purple", password:"icu2024"},
-  {username:"dr.sharma",  name:"Dr. R. Sharma",    role:"Intensivist",  dept:"Critical Care",   avatar:"👨‍⚕️", color:"blue",   password:"icu2024"},
-  {username:"dr.priya",   name:"Dr. Priya Nair",   role:"Resident",     dept:"Internal Medicine",avatar:"👩‍⚕️",color:"green",  password:"icu2024"},
-  {username:"nurse.icu",  name:"Nurse K. Verma",   role:"Nurse",        dept:"ICU Nursing",     avatar:"👩‍⚕️", color:"teal",   password:"icu2024"},
+  {username:"Dr.Shraddha narode",   name:"Dr.Shraddha narode",   role:"Senior Doctor",     dept:"Surgeon", avatar:"", color:"green",  password:"pass@123", email:"shraddhanarode@gmail.com"},
+  {username:"Dr.Atharva",   name:"Dr.Atharva",        role:"Doctor",        dept:"Administration",   avatar:"", color:"purple", password:"pass@123", email:"wakeatharva@gmail.com"},
+  {username:"Dr.Vedant",  name:"Dr.Vedant",    role:"Doctor",  dept:"Critical Care",    avatar:"", color:"Red",   password:"pass@123", email:"vedantsureshkumbhar@gmail.com"},
+  {username:"nurse.icu",  name:"Nurse Aditya",   role:"Nurse",        dept:"ICU Nursing",      avatar:"", color:"teal",   password:"pass@123", email:"adityatiwari@gmail.com"},
 ];
-
 // Role permissions
 const ROLE_PERMS = {
   Admin:       {canAdmit:true,  canDischarge:true,  canPredict:true,  canScore:true,  canReport:true,  canDelete:true},
@@ -606,7 +605,7 @@ function LoginScreen({onLogin}) {
     // Simulate network latency for realism
     await new Promise(r=>setTimeout(r,600));
 
-    const user = ICU_USERS.find(x => x.username === u.trim().toLowerCase());
+    const user = ICU_USERS.find(x => x.email === u.trim().toLowerCase());
     const validPass = user && p === user.password;
 
     if(validPass) {
@@ -635,124 +634,112 @@ function LoginScreen({onLogin}) {
     }
   };
 
-  const roleColors = {Admin:"from-purple-600 to-purple-800",Intensivist:"from-blue-700 to-blue-900",Resident:"from-green-700 to-green-900",Nurse:"from-teal-600 to-teal-800"};
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-sm">
 
         {/* Logo */}
-        <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-teal-400 shadow-2xl mb-3">
-            <span className="text-4xl">🏥</span>
-          </div>
-          <h1 className="text-3xl font-black text-white tracking-tight">PANOPTES-ICU</h1>
-          <p className="text-blue-300 text-sm mt-1">Clinical Decision Support System</p>
-          <div className="flex items-center justify-center gap-4 mt-2">
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse inline-block"/>
-              <span className="text-green-400 text-xs font-semibold">System Online</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-blue-400 inline-block"/>
-              <span className="text-blue-400 text-xs">v2.0 · AIIMS Research</span>
-            </div>
+        <div className="text-center mb-8">
+          <img
+            src="/logo.png"
+            alt="PANOPTES-ICU Logo"
+            className="w-125 mx-auto mb-3 drop-shadow-2xl rounded-xl"
+          />
+          <div className="flex items-center justify-center gap-1.5 mt-2">
+            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse inline-block"/>
+            <span className="text-green-400 text-xs font-semibold">System Online</span>
           </div>
         </div>
 
         {/* Login card */}
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-800 to-teal-700 px-6 py-4">
-            <p className="text-white font-bold text-base">🔐 Secure Clinical Login</p>
-            <p className="text-blue-200 text-xs mt-0.5">Authorised ICU personnel only · Patient data protected under HIPAA</p>
+          <div className="bg-gradient-to-r from-blue-800 to-teal-700 px-6 py-5">
+            <p className="text-white font-bold text-base">Secure Clinical Login</p>
+            <p className="text-blue-200 text-xs mt-0.5">Authorised ICU personnel only · HIPAA Protected</p>
           </div>
 
-          <div className="p-6 space-y-4">
-            {/* Username */}
+          <div className="p-6 space-y-5">
+
+            {/* Email */}
             <div>
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wide block mb-1.5">Username</label>
-              <div className="relative">
-                <span className="absolute left-3 top-3 text-gray-400">👤</span>
-                <input value={u} onChange={e=>setU(e.target.value)} onKeyDown={e=>e.key==="Enter"&&attempt()}
-                  placeholder="Enter your username"
-                  disabled={locked}
-                  className="w-full border-2 border-gray-200 rounded-xl pl-9 pr-4 py-3 text-sm focus:outline-none focus:border-blue-500 disabled:bg-gray-50 disabled:text-gray-400 transition-colors"/>
-              </div>
+              <label className="text-xs font-bold text-gray-500 uppercase tracking-wide block mb-1.5">Email Address</label>
+              <input
+                value={u}
+                onChange={e=>setU(e.target.value)}
+                onKeyDown={e=>e.key==="Enter"&&attempt()}
+                placeholder="Enter your email"
+                type="email"
+                disabled={locked}
+                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 disabled:bg-gray-50 disabled:text-gray-400 transition-colors"
+              />
             </div>
 
             {/* Password */}
             <div>
               <label className="text-xs font-bold text-gray-500 uppercase tracking-wide block mb-1.5">Password</label>
               <div className="relative">
-                <span className="absolute left-3 top-3 text-gray-400">🔑</span>
-                <input type={show?"text":"password"} value={p} onChange={e=>setP(e.target.value)} onKeyDown={e=>e.key==="Enter"&&attempt()}
+                <input
+                  type={show?"text":"password"}
+                  value={p}
+                  onChange={e=>setP(e.target.value)}
+                  onKeyDown={e=>e.key==="Enter"&&attempt()}
                   placeholder="Enter your password"
                   disabled={locked}
-                  className="w-full border-2 border-gray-200 rounded-xl pl-9 pr-12 py-3 text-sm focus:outline-none focus:border-blue-500 disabled:bg-gray-50 transition-colors"/>
-                <button onClick={()=>setShow(!show)} className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 text-base">{show?"🙈":"👁️"}</button>
+                  className="w-full border-2 border-gray-200 rounded-xl px-4 pr-16 py-3 text-sm focus:outline-none focus:border-blue-500 disabled:bg-gray-50 transition-colors"
+                />
+                <button
+                  onClick={()=>setShow(!show)}
+                  className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 text-xs font-semibold uppercase tracking-wide">
+                  {show?"Hide":"Show"}
+                </button>
               </div>
             </div>
 
             {/* Remember me */}
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={remember} onChange={e=>setRemember(e.target.checked)} className="w-4 h-4 accent-blue-600 rounded"/>
-              <span className="text-xs text-gray-500">Remember my username on this device</span>
+              <span className="text-xs text-gray-500">Remember my email on this device</span>
             </label>
 
             {/* Error / lockout */}
             {err && (
-              <div className={`rounded-xl px-4 py-3 text-sm font-medium flex items-start gap-2 ${locked?"bg-orange-50 border border-orange-300 text-orange-700":"bg-red-50 border border-red-200 text-red-600"}`}>
-                <span>{locked?"🔒":"⚠️"}</span>
-                <div>
-                  <p>{err}</p>
-                  {locked&&<p className="text-xs mt-1 font-normal">Please wait <strong>{lockTimer}s</strong> before trying again.</p>}
-                </div>
+              <div className={`rounded-xl px-4 py-3 text-sm font-medium ${locked?"bg-orange-50 border border-orange-300 text-orange-700":"bg-red-50 border border-red-200 text-red-600"}`}>
+                <p>{err}</p>
+                {locked&&<p className="text-xs mt-1 font-normal">Please wait <strong>{lockTimer}s</strong> before trying again.</p>}
               </div>
             )}
 
             {/* Attempt indicator */}
             {attempts>0&&!locked&&(
-              <div className="flex gap-1">
+              <div className="flex items-center gap-1">
                 {[1,2,3].map(i=><div key={i} className={`h-1.5 flex-1 rounded-full ${i<=attempts?"bg-red-400":"bg-gray-200"}`}/>)}
-                <p className="text-xs text-gray-400 ml-1">{attempts}/3 attempts</p>
+                <p className="text-xs text-gray-400 ml-1">{attempts}/3</p>
               </div>
             )}
 
             {/* Login button */}
-            <button onClick={attempt} disabled={busy||locked||!u||!p}
+            <button
+              onClick={attempt}
+              disabled={busy||locked||!u||!p}
               className="w-full bg-gradient-to-r from-blue-700 to-teal-600 text-white py-3 rounded-xl font-bold text-sm hover:opacity-90 disabled:opacity-50 shadow-lg transition-all flex items-center justify-center gap-2">
-              {busy ? (<><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block"/><span>Authenticating…</span></>) : locked ? "🔒 Account Locked" : "🔐 Login to ICU System"}
+              {busy
+                ? (<><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block"/><span>Authenticating...</span></>)
+                : locked
+                  ? "Account Locked"
+                  : "Login to ICU System"
+              }
             </button>
-          </div>
 
-          {/* Quick-fill accounts */}
-          <div className="border-t px-6 py-4 bg-gray-50">
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Quick Login — Demo Accounts</p>
-            <div className="grid grid-cols-2 gap-2">
-              {ICU_USERS.map(usr => (
-                <button key={usr.username} onClick={()=>{setU(usr.username);setP(usr.password);setErr("");}}
-                  className="text-left px-3 py-2 bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all group">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">{usr.avatar}</span>
-                    <div>
-                      <p className="text-xs font-bold text-gray-700 group-hover:text-blue-700">{usr.name}</p>
-                      <p className="text-xs text-gray-400">{usr.role} · {usr.dept}</p>
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-            <p className="text-center text-xs text-gray-400 mt-2">All demo accounts use password: <strong className="text-gray-500">icu2024</strong></p>
           </div>
         </div>
 
-        <p className="text-center text-slate-500 text-xs mt-4">PANOPTES-ICU v2.0 · Patient data encrypted · Research use only</p>
+        <p className="text-center text-slate-500 text-xs mt-5">PANOPTES-ICU v2.0 · Patient data encrypted · Research use only</p>
       </div>
     </div>
   );
 }
 
-// ── MAIN APP ───────────────────────────────────────────────────
+//  MAIN APP 
 export default function App() {
   const [currentUser, setCurrentUser] = useState(()=>{
     try{ return JSON.parse(sessionStorage.getItem("icu_user")||"null"); }catch(e){return null;}
@@ -773,7 +760,7 @@ export default function App() {
     weight:"",
   });
 
-  // ── Vitals Report State (separate from admission form) ──────
+  //  Vitals Report State (separate from admission form) 
   const [vitalsReport, setVitalsReport] = useState({
     // Vitals
     sbp:"", dbp:"", hr:"", rr:"", spo2:"", temp:"", gcs:"15", weight:"",
@@ -893,7 +880,7 @@ export default function App() {
     localStorage.setItem("icu_hospital_patients", JSON.stringify(updated));
     if(selected?.patient_id===id) setSelected(prev=>prev?{...prev,...updated.find(p=>p.patient_id===id)}:null);
     setOutcomeModal(null);
-    notify("Patient discharged — outcome recorded ✅");
+    notify("Patient discharged — outcome recorded ");
   };
 
   const deletePatient = (id) => {
@@ -914,7 +901,7 @@ export default function App() {
         const vArr=toArr(vr.data,"vitals"); setVitals(vArr);
         const lv=vArr.length>0?vArr[vArr.length-1]:{};
         
-        // ✅ NEW: Load admission vitals into vitalsReport form
+        //  NEW: Load admission vitals into vitalsReport form
         setVitalsReport(prev=>({...prev,
           sbp:lv.sbp||lv.systolic_bp||p.sbp||"",
           dbp:lv.dbp||lv.diastolic_bp||p.dbp||"",
@@ -1034,7 +1021,7 @@ export default function App() {
         if(type==="alvarado") { upd.score_alvarado=result.total_score; upd.score_alvarado_cat=result.risk_category; }
         return upd;
       });
-      notify(`${type.toUpperCase()} done — added to report ✅`);
+      notify(`${type.toUpperCase()} done — added to report `);
       setTab("results");
     }
     catch(e){ notify(`Error: ${e.response?.data?.detail||e.message}`,"error"); }
@@ -1078,12 +1065,12 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {note&&<div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-white text-sm font-medium ${note.type==="error"?"bg-red-500":"bg-green-500"}`}>{note.type==="error"?"❌":"✅"} {note.msg}</div>}
+      {note&&<div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-white text-sm font-medium ${note.type==="error"?"bg-red-500":"bg-green-500"}`}>{note.type==="error"?"":""} {note.msg}</div>}
 
       {/* Backend status banner */}
       {backendStatus==="offline"&&(
         <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 bg-orange-600 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 max-w-md">
-          <span className="text-xl">⚠️</span>
+          <span className="text-xl"></span>
           <div>
             <p className="font-bold text-sm">Backend Unavailable</p>
             <p className="text-xs text-orange-200">AI predictions & API scoring offline · Local scores still work · Retrying every 30s</p>
@@ -1092,12 +1079,12 @@ export default function App() {
         </div>
       )}
 
-      {/* ── OUTCOME MODAL ── */}
+      {/*  OUTCOME MODAL  */}
       {outcomeModal&&(
         <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg">
             <div className="bg-gradient-to-r from-blue-800 to-teal-700 px-6 py-4 rounded-t-2xl">
-              <h2 className="text-white font-bold text-lg">📋 Record Patient Outcome</h2>
+              <h2 className="text-white font-bold text-lg"> Record Patient Outcome</h2>
               <p className="text-blue-200 text-xs mt-0.5">This closes the feedback loop for AI model validation</p>
             </div>
             <div className="p-6 space-y-4">
@@ -1114,10 +1101,10 @@ export default function App() {
                 <div>
                   <label className="text-xs font-bold text-gray-500 uppercase block mb-1">Mortality Outcome</label>
                   <select value={outcomeForm.mortalityOutcome} onChange={e=>setOutcomeForm(p=>({...p,mortalityOutcome:e.target.value}))} className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
-                    <option value="survived">✅ Survived — Discharged</option>
-                    <option value="transferred">↗️ Transferred to Ward</option>
-                    <option value="expired">❌ Expired in ICU</option>
-                    <option value="absconded">🚶 Left Against Advice</option>
+                    <option value="survived"> Survived — Discharged</option>
+                    <option value="transferred">↗ Transferred to Ward</option>
+                    <option value="expired"> Expired in ICU</option>
+                    <option value="absconded"> Left Against Advice</option>
                   </select>
                 </div>
               </div>
@@ -1139,7 +1126,7 @@ export default function App() {
                 <strong>Why this matters:</strong> This outcome is compared against AI predictions (sepsis risk, mortality risk) to continuously validate model accuracy and close the clinical feedback loop.
               </div>
               <div className="flex gap-3 pt-1">
-                <button onClick={confirmDischarge} className="flex-1 bg-gradient-to-r from-blue-700 to-teal-600 text-white py-3 rounded-xl font-bold text-sm hover:opacity-90">✅ Confirm &amp; Record Outcome</button>
+                <button onClick={confirmDischarge} className="flex-1 bg-gradient-to-r from-blue-700 to-teal-600 text-white py-3 rounded-xl font-bold text-sm hover:opacity-90"> Confirm &amp; Record Outcome</button>
                 <button onClick={()=>setOutcomeModal(null)} className="px-6 py-3 border-2 border-gray-200 rounded-xl text-gray-600 text-sm font-medium hover:bg-gray-50">Cancel</button>
               </div>
             </div>
@@ -1148,17 +1135,17 @@ export default function App() {
       )}
       <div className="bg-gradient-to-r from-blue-900 to-blue-700 text-white px-6 py-4">
         <div className="flex justify-between items-center">
-          <div><h1 className="text-2xl font-bold">🏥 PANOPTES-ICU</h1><p className="text-blue-200 text-sm">Clinical Decision Support — 9 Scoring Tools + AI Predictions</p></div>
+          <div><h1 className="text-2xl font-bold"> PANOPTES-ICU</h1><p className="text-blue-200 text-sm">Clinical Decision Support — 9 Scoring Tools + AI Predictions</p></div>
           <div className="flex gap-3 items-center">
             {selected&&<div className="bg-blue-800 px-3 py-2 rounded-lg text-sm">Patient: <strong>{selected.patient_id}</strong></div>}
             <div className={`px-3 py-1 rounded-full text-xs font-bold ${backendStatus==="online"?"bg-green-500":backendStatus==="offline"?"bg-orange-500":"bg-yellow-500"}`}>
-              {backendStatus==="online"?"● LIVE":backendStatus==="offline"?"⚠ OFFLINE":"○ CHECKING"}
+              {backendStatus==="online"?" LIVE":backendStatus==="offline"?" OFFLINE":" CHECKING"}
             </div>
             {currentUser&&(
               <div className="flex items-center gap-2 bg-blue-800 bg-opacity-60 px-3 py-1.5 rounded-xl border border-blue-600">
                 <div className="w-7 h-7 rounded-full bg-gradient-to-br from-teal-400 to-blue-500 flex items-center justify-center text-white font-bold text-xs">{currentUser.name.charAt(0)}</div>
                 <div className="hidden sm:block"><p className="text-xs font-bold text-white leading-none">{currentUser.name}</p><p className="text-xs text-blue-300 leading-none">{currentUser.role}</p></div>
-                <button onClick={()=>{setCurrentUser(null);sessionStorage.removeItem("icu_user");}} className="text-blue-300 hover:text-white text-xs ml-1 font-bold">✕</button>
+                <button onClick={()=>{setCurrentUser(null);sessionStorage.removeItem("icu_user");}} className="text-blue-300 hover:text-white text-xs ml-1 font-bold">Logout</button>
               </div>
             )}
           </div>
@@ -1167,36 +1154,36 @@ export default function App() {
 
       <div className="bg-white border-b px-6 flex gap-1 overflow-x-auto">
         {[
-          {id:"dashboard",label:"📊 Dashboard"},
-          {id:"patients",label:"👥 Patients"},
-          {id:"vitals",label:"📋 Vitals & Reports"},
-          {id:"predict",label:"🤖 AI Predictions"},
-          {id:"alerts",label:`🚨 Alerts${alerts.length>0?` (${alerts.length})`:""}`},
-          {id:"scoring",label:"🧮 Scoring"},
-          {id:"stewardship",label:"🦠 Antimicrobial Stewardship"},
-          {id:"results",label:"📋 Patient Summary"},
-          {id:"report",label:"🧾 ICU Report"},
+          {id:"dashboard",label:"Dashboard"},
+          {id:"patients",label:"Patients"},
+          {id:"vitals",label:"Vitals & Reports"},
+          {id:"predict",label:"AI Predictions"},
+          {id:"alerts",label:`Alerts${alerts.length>0?` (${alerts.length})`:""}`},
+          {id:"scoring",label:"Scoring"},
+          {id:"stewardship",label:"Antimicrobial Stewardship"},
+          {id:"results",label:"Patient Summary"},
+          {id:"report",label:"ICU Report"},
         ].map(n=>(
           <button key={n.id} onClick={()=>setTab(n.id)} className={`px-4 py-3 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${tab===n.id?"border-blue-600 text-blue-600":"border-transparent text-gray-600 hover:text-blue-500"}`}>{n.label}</button>
         ))}
       </div>
 
       <div className="p-6 max-w-7xl mx-auto">
-        {loading&&<div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-40"><div className="bg-white rounded-xl p-6 shadow-xl flex items-center gap-3"><div className="animate-spin text-2xl">⚙️</div><span className="font-medium">Processing...</span></div></div>}
+        {loading&&<div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-40"><div className="bg-white rounded-xl p-6 shadow-xl flex items-center gap-3"><div className="animate-spin text-2xl"></div><span className="font-medium">Processing...</span></div></div>}
 
-        {/* ── DASHBOARD ── */}
+        {/*  DASHBOARD  */}
         {tab==="dashboard"&&(
           !selected?(
             <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-300">
-              <div className="text-6xl mb-4">🏥</div>
+              <div className="text-6xl mb-4"></div>
               <h2 className="text-xl font-bold text-gray-700 mb-2">Welcome, {currentUser?.name||"Doctor"}</h2>
               <p className="text-gray-500 mb-6">Admit a patient or select one from the Patients tab to begin monitoring</p>
-              <button onClick={()=>setTab("patients")} className="bg-green-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-green-700 shadow">👥 Go to Patients</button>
+              <button onClick={()=>setTab("patients")} className="bg-green-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-green-700 shadow"> Go to Patients</button>
             </div>
           ):<DashboardView selected={selected} alerts={alerts} predictions={predictions} predict={predict} setTab={setTab}/>
         )}
 
-        {/* ── PATIENTS ── */}
+        {/*  PATIENTS  */}
         {tab==="patients"&&(
           <div>
             {/* Admit Form Modal */}
@@ -1204,8 +1191,8 @@ export default function App() {
               <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-start justify-center overflow-y-auto py-6">
                 <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl mx-4">
                   <div className="bg-gradient-to-r from-green-800 to-green-600 px-6 py-4 rounded-t-2xl flex justify-between items-center">
-                    <div><h2 className="text-white font-bold text-lg">🏥 Admit New ICU Patient</h2><p className="text-green-200 text-xs mt-0.5">Fill all required fields to create patient record</p></div>
-                    <button onClick={()=>setShowAdmitForm(false)} className="text-white text-2xl hover:text-green-200">✕</button>
+                    <div><h2 className="text-white font-bold text-lg"> Admit New ICU Patient</h2><p className="text-green-200 text-xs mt-0.5">Fill all required fields to create patient record</p></div>
+                    <button onClick={()=>setShowAdmitForm(false)} className="text-white text-2xl hover:text-green-200"></button>
                   </div>
                   <div className="p-6 space-y-5">
                     {/* Personal Info */}
@@ -1235,10 +1222,10 @@ export default function App() {
                     </div>
                     {/* Note about vitals */}
                     <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 flex items-start gap-3">
-                      <span className="text-xl">💡</span>
+                      <span className="text-xl"></span>
                       <div>
                         <p className="text-sm font-bold text-blue-700">Vitals & Lab Values</p>
-                        <p className="text-xs text-blue-600 mt-0.5">After admitting the patient, go to the <strong>📋 Vitals & Reports</strong> tab to enter all clinical measurements — vitals, labs, ABG, and more. They will automatically populate all scoring systems.</p>
+                        <p className="text-xs text-blue-600 mt-0.5">After admitting the patient, go to the <strong> Vitals & Reports</strong> tab to enter all clinical measurements — vitals, labs, ABG, and more. They will automatically populate all scoring systems.</p>
                       </div>
                     </div>
                     {/* History & Complaints */}
@@ -1246,7 +1233,7 @@ export default function App() {
                       <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2"><span className="bg-purple-700 text-white px-2 py-0.5 rounded text-xs">3</span> History & Presenting Complaints</h3>
                       <p className="text-xs text-gray-500 mb-3">Check all symptoms present on admission:</p>
                       <div className="grid grid-cols-3 gap-2 mb-3">
-                        {[["fever","🌡️ Fever"],["breathlessness","😮‍💨 Breathlessness"],["chestPain","💔 Chest Pain"],["cough","🤧 Cough"],["vomiting","🤢 Nausea/Vomiting"],["alteredConsciousness","🧠 Altered Consciousness"]].map(([k,l])=>(
+                        {[["fever"," Fever"],["breathlessness"," Breathlessness"],["chestPain"," Chest Pain"],["cough"," Cough"],["vomiting"," Nausea/Vomiting"],["alteredConsciousness"," Altered Consciousness"]].map(([k,l])=>(
                           <label key={k} className={`flex items-center gap-2 cursor-pointer text-sm p-2.5 rounded-xl border-2 transition-all font-medium ${historyData[k]?"bg-purple-50 border-purple-400 text-purple-800":"bg-gray-50 border-gray-200 text-gray-500 hover:border-purple-200"}`}>
                             <input type="checkbox" checked={historyData[k]} onChange={e=>setHistoryData({...historyData,[k]:e.target.checked})} className="w-4 h-4 accent-purple-600"/> {l}
                           </label>
@@ -1265,7 +1252,7 @@ export default function App() {
                     </div>
                     {/* Buttons */}
                     <div className="flex gap-3 pt-2 border-t">
-                      <button onClick={admitPatient} className="flex-1 bg-gradient-to-r from-green-700 to-green-500 text-white py-3 rounded-xl font-bold text-sm hover:opacity-90 shadow">✅ Admit Patient to ICU</button>
+                      <button onClick={admitPatient} className="flex-1 bg-gradient-to-r from-green-700 to-green-500 text-white py-3 rounded-xl font-bold text-sm hover:opacity-90 shadow"> Admit Patient to ICU</button>
                       <button onClick={()=>setShowAdmitForm(false)} className="px-6 py-3 border rounded-xl text-gray-600 text-sm font-medium hover:bg-gray-50">Cancel</button>
                     </div>
                   </div>
@@ -1275,17 +1262,17 @@ export default function App() {
 
             {/* Header */}
             <div className="flex justify-between items-center mb-4">
-              <div><h2 className="text-lg font-bold text-gray-800">🏥 ICU Patient Management</h2><p className="text-sm text-gray-500">{hospitalPatients.filter(p=>p.status==="Active").length} active · {hospitalPatients.filter(p=>p.status==="Discharged").length} discharged</p></div>
-              <button onClick={()=>setShowAdmitForm(true)} className="bg-gradient-to-r from-green-700 to-green-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:opacity-90 shadow flex items-center gap-2">➕ Admit New Patient</button>
+              <div><h2 className="text-lg font-bold text-gray-800"> ICU Patient Management</h2><p className="text-sm text-gray-500">{hospitalPatients.filter(p=>p.status==="Active").length} active · {hospitalPatients.filter(p=>p.status==="Discharged").length} discharged</p></div>
+              <button onClick={()=>setShowAdmitForm(true)} className="bg-gradient-to-r from-green-700 to-green-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:opacity-90 shadow flex items-center gap-2"> Admit New Patient</button>
             </div>
 
             {/* HOSPITAL PATIENTS */}
             {hospitalPatients.filter(p=>p.status==="Active").length===0?(
                 <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-300">
-                  <div className="text-6xl mb-4">🏥</div>
+                  <div className="text-6xl mb-4"></div>
                   <h3 className="text-lg font-bold text-gray-700 mb-2">No Active Patients</h3>
                   <p className="text-gray-500 text-sm mb-6">Admit your first patient to start tracking their ICU data</p>
-                  <button onClick={()=>setShowAdmitForm(true)} className="bg-gradient-to-r from-green-700 to-green-500 text-white px-8 py-3 rounded-xl font-bold hover:opacity-90 shadow">➕ Admit First Patient</button>
+                  <button onClick={()=>setShowAdmitForm(true)} className="bg-gradient-to-r from-green-700 to-green-500 text-white px-8 py-3 rounded-xl font-bold hover:opacity-90 shadow"> Admit First Patient</button>
                 </div>
               ):(
                 <div>
@@ -1304,7 +1291,7 @@ export default function App() {
                                 <p className="text-sm text-gray-700 mt-1 font-medium">{p.diagnosis||p.admitReason||"No diagnosis"}</p>
                               </div>
                               <div className="flex flex-col gap-1 items-end">
-                                <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-bold border border-green-200">🟢 Active</span>
+                                <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-bold border border-green-200"> Active</span>
                                 {p.bloodGroup&&<span className="bg-red-50 text-red-600 text-xs px-2 py-0.5 rounded-full border border-red-200">{p.bloodGroup}</span>}
                               </div>
                             </div>
@@ -1319,10 +1306,10 @@ export default function App() {
                             <p className="text-xs text-gray-400">Admitted: {new Date(p.admitTime).toLocaleString()}</p>
                           </div>
                           <div className="flex gap-2 mt-2 pt-2 border-t">
-                            <button onClick={()=>{setSelected(p);setTab("dashboard");}} className="flex-1 bg-green-600 text-white py-1.5 rounded-lg text-xs font-bold hover:bg-green-700">📊 View Dashboard</button>
-                            <button onClick={()=>{setSelected(p);setTab("report");}} className="flex-1 bg-blue-600 text-white py-1.5 rounded-lg text-xs font-bold hover:bg-blue-700">🧾 Report</button>
+                            <button onClick={()=>{setSelected(p);setTab("dashboard");}} className="flex-1 bg-green-600 text-white py-1.5 rounded-lg text-xs font-bold hover:bg-green-700"> View Dashboard</button>
+                            <button onClick={()=>{setSelected(p);setTab("report");}} className="flex-1 bg-blue-600 text-white py-1.5 rounded-lg text-xs font-bold hover:bg-blue-700"> Report</button>
                             <button onClick={()=>{if(window.confirm(`Discharge ${p.name}?`))dischargePatient(p.patient_id);}} className="px-3 py-1.5 bg-orange-100 text-orange-700 rounded-lg text-xs font-bold hover:bg-orange-200">Discharge</button>
-                            <button onClick={()=>{if(window.confirm(`Delete ${p.name}'s record?`))deletePatient(p.patient_id);}} className="px-3 py-1.5 bg-red-100 text-red-700 rounded-lg text-xs font-bold hover:bg-red-200">✕</button>
+                            <button onClick={()=>{if(window.confirm(`Delete ${p.name}'s record?`))deletePatient(p.patient_id);}} className="px-3 py-1.5 bg-red-100 text-red-700 rounded-lg text-xs font-bold hover:bg-red-200"></button>
                           </div>
                         </div>
                       ))}
@@ -1336,7 +1323,7 @@ export default function App() {
                                 <div><p className="font-medium text-gray-700 text-sm">{p.name}</p><p className="text-xs text-gray-400">{p.patient_id} · {p.diagnosis}</p></div>
                                 <div className="flex gap-1">
                                   <span className="bg-gray-200 text-gray-600 text-xs px-2 py-0.5 rounded-full">Discharged</span>
-                                  <button onClick={()=>deletePatient(p.patient_id)} className="text-xs text-red-400 hover:text-red-600 ml-1">✕</button>
+                                  <button onClick={()=>deletePatient(p.patient_id)} className="text-xs text-red-400 hover:text-red-600 ml-1"></button>
                                 </div>
                               </div>
                             </div>
@@ -1359,10 +1346,10 @@ export default function App() {
                                 <span className="bg-white bg-opacity-20 px-2 py-0.5 rounded-full text-sm">{selected.gender}</span>
                                 {selected.bloodGroup&&<span className="bg-red-500 bg-opacity-80 px-2 py-0.5 rounded-full text-sm font-bold">{selected.bloodGroup}</span>}
                                 {selected.comorbidities&&<span className="bg-yellow-500 bg-opacity-80 px-2 py-0.5 rounded-full text-xs">{selected.comorbidities}</span>}
-                                {selected.allergies&&<span className="bg-red-600 bg-opacity-80 px-2 py-0.5 rounded-full text-xs">⚠️ Allergy: {selected.allergies}</span>}
+                                {selected.allergies&&<span className="bg-red-600 bg-opacity-80 px-2 py-0.5 rounded-full text-xs"> Allergy: {selected.allergies}</span>}
                               </div>
                             </div>
-                            <button onClick={()=>setTab("report")} className="bg-white text-green-900 px-3 py-2 rounded-lg text-xs font-bold">🧾 Generate Report</button>
+                            <button onClick={()=>setTab("report")} className="bg-white text-green-900 px-3 py-2 rounded-lg text-xs font-bold"> Generate Report</button>
                           </div>
                         {selected.contactName&&<div className="mt-3 bg-white bg-opacity-10 rounded-lg p-2 text-xs"><span className="text-green-200">Emergency Contact:</span> <strong>{selected.contactName}</strong> · {selected.contactPhone}</div>}
                         </div>
@@ -1370,10 +1357,10 @@ export default function App() {
                         {/* History Summary (read-only from admit form) */}
                         {Object.entries(historyData).some(([k,v])=>typeof v==="boolean"&&v)||historyData.duration||historyData.otherComplaints?(
                           <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
-                            <div className="bg-purple-700 px-4 py-2 flex items-center justify-between"><span className="text-white font-bold text-xs uppercase">📋 History & Complaints</span><span className="text-purple-200 text-xs">Entered at admission</span></div>
+                            <div className="bg-purple-700 px-4 py-2 flex items-center justify-between"><span className="text-white font-bold text-xs uppercase"> History & Complaints</span><span className="text-purple-200 text-xs">Entered at admission</span></div>
                             <div className="p-4">
                               <div className="flex flex-wrap gap-2 mb-2">
-                                {[["fever","🌡️ Fever"],["breathlessness","😮‍💨 Breathlessness"],["chestPain","💔 Chest Pain"],["cough","🤧 Cough"],["vomiting","🤢 Nausea/Vomiting"],["alteredConsciousness","🧠 Altered Consciousness"]].filter(([k])=>historyData[k]).map(([k,l])=>(
+                                {[["fever"," Fever"],["breathlessness"," Breathlessness"],["chestPain"," Chest Pain"],["cough"," Cough"],["vomiting"," Nausea/Vomiting"],["alteredConsciousness"," Altered Consciousness"]].filter(([k])=>historyData[k]).map(([k,l])=>(
                                   <span key={k} className="bg-purple-100 text-purple-700 border border-purple-300 text-xs font-bold px-3 py-1 rounded-full">{l}</span>
                                 ))}
                               </div>
@@ -1385,13 +1372,13 @@ export default function App() {
 
                         {/* Lab Summary */}
                         <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
-                          <div className="bg-teal-700 px-4 py-2 flex justify-between items-center"><span className="text-white font-bold text-xs uppercase">🔬 Admission Lab Summary</span><span className="text-teal-200 text-xs">Live vitals · Red = abnormal</span></div>
+                          <div className="bg-teal-700 px-4 py-2 flex justify-between items-center"><span className="text-white font-bold text-xs uppercase"> Admission Lab Summary</span><span className="text-teal-200 text-xs">Live vitals · Red = abnormal</span></div>
                           <div className="p-4">
                             <div className="grid grid-cols-3 gap-3">
-                              {[{l:"Heart Rate",v:vitalsReport.hr||selected.hr,u:"bpm",w:(parseFloat(vitalsReport.hr)||parseFloat(selected.hr))>120||(parseFloat(vitalsReport.hr)||parseFloat(selected.hr))<50,icon:"❤️"},{l:"Blood Pressure",v:(vitalsReport.sbp||selected.sbp)&&(vitalsReport.dbp||selected.dbp)?`${vitalsReport.sbp||selected.sbp}/${vitalsReport.dbp||selected.dbp}`:"",u:"mmHg",w:(parseFloat(vitalsReport.sbp)||parseFloat(selected.sbp))<90,icon:"🩸"},{l:"SpO₂",v:vitalsReport.spo2||selected.spo2,u:"%",w:(parseFloat(vitalsReport.spo2)||parseFloat(selected.spo2))<94,icon:"🫁"},{l:"Respiratory Rate",v:vitalsReport.rr||selected.rr,u:"/min",w:(parseFloat(vitalsReport.rr)||parseFloat(selected.rr))>24,icon:"💨"},{l:"Temperature",v:vitalsReport.temp||selected.temp,u:"°C",w:(parseFloat(vitalsReport.temp)||parseFloat(selected.temp))>38.5,icon:"🌡️"},{l:"Blood Sugar",v:vitalsReport.sugar||selected.sugar,u:"mg/dL",w:(parseFloat(vitalsReport.sugar)||parseFloat(selected.sugar))>200||(parseFloat(vitalsReport.sugar)||parseFloat(selected.sugar))<70,icon:"🍬"},{l:"Hemoglobin",v:vitalsReport.hb||selected.hb,u:"g/dL",w:(parseFloat(vitalsReport.hb)||parseFloat(selected.hb))<8,icon:"🔴"},{l:"WBC",v:vitalsReport.wbc||selected.wbc,u:"×10³",w:(parseFloat(vitalsReport.wbc)||parseFloat(selected.wbc))>11,icon:"⬜"},{l:"Creatinine",v:vitalsReport.creatinine||selected.creatinine,u:"mg/dL",w:(parseFloat(vitalsReport.creatinine)||parseFloat(selected.creatinine))>1.5,icon:"🫘"},{l:"Lactate",v:vitalsReport.lactate||selected.lactate,u:"mmol/L",w:(parseFloat(vitalsReport.lactate)||parseFloat(selected.lactate))>2,icon:"⚗️"},{l:"Platelets",v:vitalsReport.platelets||selected.platelets,u:"×10³",w:(parseFloat(vitalsReport.platelets)||parseFloat(selected.platelets))<100,icon:"🟡"}].map((item,i)=>{
+                              {[{l:"Heart Rate",v:vitalsReport.hr||selected.hr,u:"bpm",w:(parseFloat(vitalsReport.hr)||parseFloat(selected.hr))>120||(parseFloat(vitalsReport.hr)||parseFloat(selected.hr))<50,icon:""},{l:"Blood Pressure",v:(vitalsReport.sbp||selected.sbp)&&(vitalsReport.dbp||selected.dbp)?`${vitalsReport.sbp||selected.sbp}/${vitalsReport.dbp||selected.dbp}`:"",u:"mmHg",w:(parseFloat(vitalsReport.sbp)||parseFloat(selected.sbp))<90,icon:""},{l:"SpO₂",v:vitalsReport.spo2||selected.spo2,u:"%",w:(parseFloat(vitalsReport.spo2)||parseFloat(selected.spo2))<94,icon:""},{l:"Respiratory Rate",v:vitalsReport.rr||selected.rr,u:"/min",w:(parseFloat(vitalsReport.rr)||parseFloat(selected.rr))>24,icon:""},{l:"Temperature",v:vitalsReport.temp||selected.temp,u:"°C",w:(parseFloat(vitalsReport.temp)||parseFloat(selected.temp))>38.5,icon:""},{l:"Blood Sugar",v:vitalsReport.sugar||selected.sugar,u:"mg/dL",w:(parseFloat(vitalsReport.sugar)||parseFloat(selected.sugar))>200||(parseFloat(vitalsReport.sugar)||parseFloat(selected.sugar))<70,icon:""},{l:"Hemoglobin",v:vitalsReport.hb||selected.hb,u:"g/dL",w:(parseFloat(vitalsReport.hb)||parseFloat(selected.hb))<8,icon:""},{l:"WBC",v:vitalsReport.wbc||selected.wbc,u:"×10³",w:(parseFloat(vitalsReport.wbc)||parseFloat(selected.wbc))>11,icon:""},{l:"Creatinine",v:vitalsReport.creatinine||selected.creatinine,u:"mg/dL",w:(parseFloat(vitalsReport.creatinine)||parseFloat(selected.creatinine))>1.5,icon:""},{l:"Lactate",v:vitalsReport.lactate||selected.lactate,u:"mmol/L",w:(parseFloat(vitalsReport.lactate)||parseFloat(selected.lactate))>2,icon:""},{l:"Platelets",v:vitalsReport.platelets||selected.platelets,u:"×10³",w:(parseFloat(vitalsReport.platelets)||parseFloat(selected.platelets))<100,icon:""}].map((item,i)=>{
                                 const displayVal = item.v||"—";
                                 return(<div key={i} className={`rounded-xl border-2 p-3 ${item.w&&item.v?"bg-red-50 border-red-300":"bg-gray-50 border-gray-200"}`}>
-                                  <div className="flex justify-between items-start mb-1"><p className="text-xs text-gray-500 font-medium">{item.icon} {item.l}</p>{item.w&&item.v&&<span className="text-xs bg-red-100 text-red-600 px-1.5 rounded-full font-bold">⚠️</span>}</div>
+                                  <div className="flex justify-between items-start mb-1"><p className="text-xs text-gray-500 font-medium">{item.icon} {item.l}</p>{item.w&&item.v&&<span className="text-xs bg-red-100 text-red-600 px-1.5 rounded-full font-bold"></span>}</div>
                                   <p className={`text-xl font-black ${item.w&&item.v?"text-red-600":"text-gray-800"}`}>{displayVal}</p>
                                   <p className="text-xs text-gray-400">{item.u}</p>
                                 </div>);
@@ -1403,13 +1390,13 @@ export default function App() {
                         {selected.outcome&&(
                           <div className={`rounded-xl border-2 p-4 ${selected.outcome.mortalityOutcome==="expired"?"border-red-300 bg-red-50":"border-green-300 bg-green-50"}`}>
                             <div className="flex justify-between items-center mb-2">
-                              <p className="font-bold text-gray-700 text-sm">📋 Recorded Outcome</p>
+                              <p className="font-bold text-gray-700 text-sm"> Recorded Outcome</p>
                               <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${selected.outcome.mortalityOutcome==="expired"?"bg-red-100 text-red-700":"bg-green-100 text-green-700"}`}>
-                                {selected.outcome.mortalityOutcome==="survived"?"✅ Survived":selected.outcome.mortalityOutcome==="expired"?"❌ Expired":"↗️ Transferred"}
+                                {selected.outcome.mortalityOutcome==="survived"?" Survived":selected.outcome.mortalityOutcome==="expired"?" Expired":"↗ Transferred"}
                               </span>
                             </div>
                             <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
-                              <div><span className="text-gray-400">Sepsis confirmed:</span> <strong>{selected.outcome.sepsisConfirmed==="yes"?"Yes ✅":selected.outcome.sepsisConfirmed==="no"?"No ❌":selected.outcome.sepsisConfirmed}</strong></div>
+                              <div><span className="text-gray-400">Sepsis confirmed:</span> <strong>{selected.outcome.sepsisConfirmed==="yes"?"Yes ":selected.outcome.sepsisConfirmed==="no"?"No ":selected.outcome.sepsisConfirmed}</strong></div>
                               {selected.outcome.icuDays&&<div><span className="text-gray-400">ICU stay:</span> <strong>{selected.outcome.icuDays} days</strong></div>}
                               {selected.outcome.finalDiagnosis&&<div className="col-span-2"><span className="text-gray-400">Final Dx:</span> <strong>{selected.outcome.finalDiagnosis}</strong></div>}
                               {selected.outcome.notes&&<div className="col-span-2 text-gray-500 italic">"{selected.outcome.notes}"</div>}
@@ -1420,7 +1407,7 @@ export default function App() {
                       </div>
                     ):(
                       <div className="md:col-span-2 flex items-center justify-center bg-white rounded-xl border border-dashed border-gray-300 py-24">
-                        <div className="text-center text-gray-400"><p className="text-5xl mb-3">👈</p><p className="font-medium">Click a patient card to view case sheet</p></div>
+                        <div className="text-center text-gray-400"><p className="text-5xl mb-3"></p><p className="font-medium">Click a patient card to view case sheet</p></div>
                       </div>
                     )}
                   </div>
@@ -1430,36 +1417,36 @@ export default function App() {
           </div>
         )}
 
-        {/* ── AI PREDICTIONS ── */}
+        {/*  AI PREDICTIONS  */}
         {tab==="predict"&&(
           <div>
-            <h2 className="text-lg font-bold text-gray-800 mb-2">🤖 AI Clinical Decision Support</h2>
-            {!selected?(<div className="text-center py-10 bg-yellow-50 rounded-xl border border-yellow-200"><p className="text-yellow-700 font-medium">⚠️ Select a patient first</p><button onClick={()=>setTab("patients")} className="mt-3 bg-yellow-500 text-white px-4 py-2 rounded-lg text-sm">Go to Patients</button></div>):(
+            <h2 className="text-lg font-bold text-gray-800 mb-2"> AI Clinical Decision Support</h2>
+            {!selected?(<div className="text-center py-10 bg-yellow-50 rounded-xl border border-yellow-200"><p className="text-yellow-700 font-medium"> Select a patient first</p><button onClick={()=>setTab("patients")} className="mt-3 bg-yellow-500 text-white px-4 py-2 rounded-lg text-sm">Go to Patients</button></div>):(
               <div>
                 <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-4 text-blue-700 text-sm">Running predictions for: <strong>{selected.patient_id}</strong></div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div>{predictions.sepsis?<SepsisCard data={predictions.sepsis} outcome={selected?.outcome}/>:<div className="bg-white rounded-xl border-2 border-dashed border-red-300 p-8 text-center"><p className="text-4xl mb-2">🦠</p><p className="font-bold text-gray-700 mb-1">Sepsis Risk</p><p className="text-sm text-gray-500 mb-4">GRU-D Deep Learning</p><button onClick={()=>predict("sepsis")} className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 font-medium">▶ Run</button></div>}</div>
-                  <div>{predictions.deterioration?<DeteriorationCard data={predictions.deterioration}/>:<div className="bg-white rounded-xl border-2 border-dashed border-orange-300 p-8 text-center"><p className="text-4xl mb-2">📉</p><p className="font-bold text-gray-700 mb-1">Clinical Deterioration</p><p className="text-sm text-gray-500 mb-4">VAE Anomaly Detection</p><button onClick={()=>predict("deterioration")} className="bg-orange-600 text-white px-6 py-2 rounded-lg hover:bg-orange-700 font-medium">▶ Run</button></div>}</div>
-                  <div>{predictions.mortality?<MortalityCard data={predictions.mortality} outcome={selected?.outcome}/>:<div className="bg-white rounded-xl border-2 border-dashed border-purple-300 p-8 text-center"><p className="text-4xl mb-2">💀</p><p className="font-bold text-gray-700 mb-1">Mortality Risk</p><p className="text-sm text-gray-500 mb-4">APACHE II + SOFA</p><button onClick={()=>predict("mortality")} className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 font-medium">▶ Run</button></div>}</div>
-                  <div>{predictions["organ-failure"]?<OrganCard data={predictions["organ-failure"]}/>:<div className="bg-white rounded-xl border-2 border-dashed border-blue-300 p-8 text-center"><p className="text-4xl mb-2">🫀</p><p className="font-bold text-gray-700 mb-1">Organ Failure Risk</p><p className="text-sm text-gray-500 mb-4">SOFA Multi-Organ</p><button onClick={()=>predict("organ-failure")} className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 font-medium">▶ Run</button></div>}</div>
+                  <div>{predictions.sepsis?<SepsisCard data={predictions.sepsis} outcome={selected?.outcome}/>:<div className="bg-white rounded-xl border-2 border-dashed border-red-300 p-8 text-center"><p className="text-4xl mb-2"></p><p className="font-bold text-gray-700 mb-1">Sepsis Risk</p><p className="text-sm text-gray-500 mb-4">GRU-D Deep Learning</p><button onClick={()=>predict("sepsis")} className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 font-medium"> Run</button></div>}</div>
+                  <div>{predictions.deterioration?<DeteriorationCard data={predictions.deterioration}/>:<div className="bg-white rounded-xl border-2 border-dashed border-orange-300 p-8 text-center"><p className="text-4xl mb-2"></p><p className="font-bold text-gray-700 mb-1">Clinical Deterioration</p><p className="text-sm text-gray-500 mb-4">VAE Anomaly Detection</p><button onClick={()=>predict("deterioration")} className="bg-orange-600 text-white px-6 py-2 rounded-lg hover:bg-orange-700 font-medium"> Run</button></div>}</div>
+                  <div>{predictions.mortality?<MortalityCard data={predictions.mortality} outcome={selected?.outcome}/>:<div className="bg-white rounded-xl border-2 border-dashed border-purple-300 p-8 text-center"><p className="text-4xl mb-2"></p><p className="font-bold text-gray-700 mb-1">Mortality Risk</p><p className="text-sm text-gray-500 mb-4">APACHE II + SOFA</p><button onClick={()=>predict("mortality")} className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 font-medium"> Run</button></div>}</div>
+                  <div>{predictions["organ-failure"]?<OrganCard data={predictions["organ-failure"]}/>:<div className="bg-white rounded-xl border-2 border-dashed border-blue-300 p-8 text-center"><p className="text-4xl mb-2"></p><p className="font-bold text-gray-700 mb-1">Organ Failure Risk</p><p className="text-sm text-gray-500 mb-4">SOFA Multi-Organ</p><button onClick={()=>predict("organ-failure")} className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 font-medium"> Run</button></div>}</div>
                 </div>
-                <div className="mb-4">{predictions.shap?<ShapCard data={predictions.shap}/>:<div className="bg-white rounded-xl border-2 border-dashed border-purple-300 p-6 text-center"><p className="text-4xl mb-2">🔍</p><p className="font-bold text-gray-700 mb-1">SHAP Explainability</p><p className="text-sm text-gray-500 mb-3">Which vitals drove the prediction</p><button onClick={async()=>{setLoading(true);try{const r=await axios.post(`${API}/explain/prediction?patient_id=${selected.patient_id}`);setPredictions(prev=>({...prev,shap:r.data}));notify("SHAP ready");}catch(e){notify("SHAP failed","error");}setLoading(false);}} className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 font-medium">🔍 Explain AI Decision</button></div>}</div>
-                <div className="bg-gray-900 rounded-xl p-4 text-center"><p className="text-white text-sm mb-3 font-medium">Run all 4 predictions at once</p><button onClick={async()=>{for(const t of["sepsis","deterioration","mortality","organ-failure"])await predict(t);}} className="bg-white text-gray-900 px-8 py-2 rounded-lg font-bold">▶ Run All 4</button></div>
+                <div className="mb-4">{predictions.shap?<ShapCard data={predictions.shap}/>:<div className="bg-white rounded-xl border-2 border-dashed border-purple-300 p-6 text-center"><p className="text-4xl mb-2"></p><p className="font-bold text-gray-700 mb-1">SHAP Explainability</p><p className="text-sm text-gray-500 mb-3">Which vitals drove the prediction</p><button onClick={async()=>{setLoading(true);try{const r=await axios.post(`${API}/explain/prediction?patient_id=${selected.patient_id}`);setPredictions(prev=>({...prev,shap:r.data}));notify("SHAP ready");}catch(e){notify("SHAP failed","error");}setLoading(false);}} className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 font-medium"> Explain AI Decision</button></div>}</div>
+                <div className="bg-gray-900 rounded-xl p-4 text-center"><p className="text-white text-sm mb-3 font-medium">Run all 4 predictions at once</p><button onClick={async()=>{for(const t of["sepsis","deterioration","mortality","organ-failure"])await predict(t);}} className="bg-white text-gray-900 px-8 py-2 rounded-lg font-bold"> Run All 4</button></div>
               </div>
             )}
           </div>
         )}
 
-        {/* ── ALERTS ── */}
+        {/*  ALERTS  */}
         {tab==="alerts"&&(
           <div>
-            <h2 className="text-lg font-bold text-gray-800 mb-4">🚨 Clinical Alerts</h2>
-            {!selected?<div className="text-center py-10 text-gray-400">Select a patient to see alerts</div>:alerts.length===0?(<div className="text-center py-16 bg-green-50 rounded-xl border border-green-200"><div className="text-5xl mb-3">✅</div><p className="text-green-700 font-medium">No active alerts</p></div>):(
+            <h2 className="text-lg font-bold text-gray-800 mb-4"> Clinical Alerts</h2>
+            {!selected?<div className="text-center py-10 text-gray-400">Select a patient to see alerts</div>:alerts.length===0?(<div className="text-center py-16 bg-green-50 rounded-xl border border-green-200"><div className="text-5xl mb-3"></div><p className="text-green-700 font-medium">No active alerts</p></div>):(
               <div className="space-y-3">{alerts.map((a,i)=>(
                 <div key={i} className={`bg-white rounded-xl p-4 shadow-sm border-l-4 ${a.severity==="CRITICAL"?"border-red-500":a.severity==="HIGH"?"border-orange-500":"border-yellow-500"}`}>
                   <div className="flex justify-between items-start">
                     <div><div className="flex items-center gap-2 mb-1"><Badge level={a.severity||"HIGH"}/><span className="font-medium text-gray-800">{a.alert_type||"Clinical Alert"}</span></div><p className="text-sm text-gray-600">{a.message||"Alert triggered"}</p></div>
-                    <button onClick={async()=>{try{await axios.post(`${API}/alerts/${a._id}/acknowledge`);setAlerts(prev=>prev.filter((_,j)=>j!==i));notify("Acknowledged");}catch(e){}}} className="text-xs bg-gray-100 px-3 py-1 rounded-lg hover:bg-gray-200">✓ Acknowledge</button>
+                    <button onClick={async()=>{try{await axios.post(`${API}/alerts/${a._id}/acknowledge`);setAlerts(prev=>prev.filter((_,j)=>j!==i));notify("Acknowledged");}catch(e){}}} className="text-xs bg-gray-100 px-3 py-1 rounded-lg hover:bg-gray-200"> Acknowledge</button>
                   </div>
                 </div>
               ))}</div>
@@ -1467,12 +1454,12 @@ export default function App() {
           </div>
         )}
 
-        {/* ── SCORING ── */}
+        {/*  SCORING  */}
         {tab==="vitals"&&(
           <div className="space-y-5">
             {!selected?(
               <div className="flex flex-col items-center justify-center py-24 text-center">
-                <span className="text-5xl mb-3">📋</span>
+                <span className="text-5xl mb-3"></span>
                 <h3 className="text-lg font-bold text-gray-600">No Patient Selected</h3>
                 <p className="text-sm text-gray-400 mt-1">Select a patient from the Patients tab to enter vitals</p>
               </div>
@@ -1481,11 +1468,11 @@ export default function App() {
                 {/* Header */}
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h2 className="text-lg font-bold text-gray-800">📋 Vitals & Lab Report</h2>
+                    <h2 className="text-lg font-bold text-gray-800"> Vitals & Lab Report</h2>
                     <p className="text-sm text-gray-500">{selected.name} · {selected.patient_id} · {selected.ward||"ICU"}</p>
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={()=>setVitalsTab("current")} className={`px-4 py-2 rounded-xl text-sm font-bold border-2 transition-all ${vitalsTab==="current"?"border-blue-500 bg-blue-50 text-blue-700":"border-gray-200 text-gray-500 hover:border-blue-300"}`}>📝 Enter Vitals</button>
+                    <button onClick={()=>setVitalsTab("current")} className={`px-4 py-2 rounded-xl text-sm font-bold border-2 transition-all ${vitalsTab==="current"?"border-blue-500 bg-blue-50 text-blue-700":"border-gray-200 text-gray-500 hover:border-blue-300"}`}> Enter Vitals</button>
                   </div>
                 </div>
 
@@ -1513,18 +1500,18 @@ export default function App() {
                         ].map(([k,l,u])=>{
                           const val=parseFloat(vitalsReport[k]);
                           const warn=(k==="sbp"&&val<90)||(k==="hr"&&(val>120||val<50))||(k==="spo2"&&val<94)||(k==="rr"&&val>24)||(k==="temp"&&val>38.5)||(k==="gcs"&&val<9);
-                          return(<div key={k}><label className="text-xs text-gray-500 font-medium block mb-1">{l} <span className="text-gray-400">({u})</span>{warn&&<span className="ml-1 text-red-500 font-bold">⚠</span>}</label><input type="number" step="0.1" value={vitalsReport[k]||""} onChange={e=>vr(k,e.target.value)} className={`${inp} ${warn?"border-red-400 bg-red-50":""}`}/></div>);
+                          return(<div key={k}><label className="text-xs text-gray-500 font-medium block mb-1">{l} <span className="text-gray-400">({u})</span>{warn&&<span className="ml-1 text-red-500 font-bold"></span>}</label><input type="number" step="0.1" value={vitalsReport[k]||""} onChange={e=>vr(k,e.target.value)} className={`${inp} ${warn?"border-red-400 bg-red-50":""}`}/></div>);
                         })}
                       </div>
                       <div className="mt-3 flex items-center gap-3">
                         <label className="flex items-center gap-2 text-sm cursor-pointer bg-blue-50 px-3 py-2 rounded-lg border border-blue-200">
                           <input type="checkbox" checked={vitalsReport.mechanical_ventilation} onChange={e=>vr("mechanical_ventilation",e.target.checked)} className="w-4 h-4 accent-blue-600"/>
-                          <span className="font-medium text-blue-800">🫁 On Mechanical Ventilation</span>
+                          <span className="font-medium text-blue-800"> On Mechanical Ventilation</span>
                         </label>
                         {vitalsReport.sbp&&vitalsReport.dbp&&(
                           <div className="bg-teal-50 border border-teal-200 rounded-lg px-3 py-2 text-xs text-teal-700 font-medium">
                             MAP: <strong>{Math.round((parseFloat(vitalsReport.sbp)+2*parseFloat(vitalsReport.dbp))/3)}</strong> mmHg
-                            {Math.round((parseFloat(vitalsReport.sbp)+2*parseFloat(vitalsReport.dbp))/3)<65&&<span className="ml-1 text-red-600 font-bold">⚠ Below 65</span>}
+                            {Math.round((parseFloat(vitalsReport.sbp)+2*parseFloat(vitalsReport.dbp))/3)<65&&<span className="ml-1 text-red-600 font-bold"> Below 65</span>}
                           </div>
                         )}
                       </div>
@@ -1565,7 +1552,7 @@ export default function App() {
                         <div className="mt-3 bg-teal-50 border border-teal-200 rounded-lg px-3 py-2 text-xs text-teal-700 font-medium flex items-center gap-2">
                           <span>PaO₂/FiO₂ Ratio:</span>
                           <strong>{Math.round(parseFloat(vitalsReport.pao2)/parseFloat(vitalsReport.fio2))}</strong>
-                          <span>{Math.round(parseFloat(vitalsReport.pao2)/parseFloat(vitalsReport.fio2))<200?"⚠️ Severe ARDS":Math.round(parseFloat(vitalsReport.pao2)/parseFloat(vitalsReport.fio2))<300?"🟡 Moderate ARDS":"✅ Normal"}</span>
+                          <span>{Math.round(parseFloat(vitalsReport.pao2)/parseFloat(vitalsReport.fio2))<200?" Severe ARDS":Math.round(parseFloat(vitalsReport.pao2)/parseFloat(vitalsReport.fio2))<300?" Moderate ARDS":" Normal"}</span>
                         </div>
                       )}
                     </div>
@@ -1574,7 +1561,7 @@ export default function App() {
                     <div className="bg-white rounded-xl border shadow-sm p-4">
                       <div className="flex gap-3">
                         <button onClick={()=>{
-                          // ✅ NEW: Save vitals to selected patient object
+                          //  NEW: Save vitals to selected patient object
                           const updatedPatient = {
                             ...selected,
                             hr: vitalsReport.hr || selected.hr,
@@ -1658,13 +1645,13 @@ export default function App() {
                             mean_arterial_pressure:map_num,gcs:parseInt(vitalsReport.gcs)||prev.gcs,
                           }));
                           setMurray(prev=>({...prev,pao2_fio2_ratio:pf}));
-                          notify("✅ Vitals saved & all scoring systems auto-populated!","success");
+                          notify(" Vitals saved & all scoring systems auto-populated!","success");
                         }} className="flex-1 bg-gradient-to-r from-blue-700 to-teal-600 text-white py-3 rounded-xl font-bold text-sm hover:opacity-90 shadow">
-                          💾 Save Vitals & Auto-Populate Scoring
+                           Save Vitals & Auto-Populate Scoring
                         </button>
                         <button onClick={()=>setVitalsReport({sbp:"",dbp:"",hr:"",rr:"",spo2:"",temp:"",gcs:"15",weight:"",mechanical_ventilation:false,hb:"",sugar:"",creatinine:"",platelets:"",wbc:"",lactate:"",bilirubin:"",sodium:"",potassium:"",bicarbonate:"",bun:"",hematocrit:"",arterial_ph:"",pao2:"",fio2:"0.21",urine_output:"",inr:"",procalcitonin:"",recordedBy:"",recordedAt:"",notes:""})}
                           className="px-5 py-3 border-2 border-gray-200 rounded-xl text-gray-600 text-sm font-medium hover:bg-gray-50">
-                          🔄 Clear
+                           Clear
                         </button>
                       </div>
                       <p className="text-xs text-gray-400 mt-2 text-center">Saving will automatically fill all 9 scoring system forms with these values</p>
@@ -1681,22 +1668,44 @@ export default function App() {
           <div>
             <div className="mb-4 flex items-center gap-3"><label className="text-xs text-gray-500 font-medium">Patient ID:</label><input value={pid} onChange={e=>setPid(e.target.value)} className="border rounded-lg px-3 py-1.5 text-sm w-40 outline-none"/></div>
             <div className="flex gap-1 flex-wrap mb-4">{["apache","sofa","qsofa","gcs","ranson","saps","mods","murray","alvarado"].map(s=><button key={s} onClick={()=>setStab(s)} className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${stab===s?"bg-blue-600 text-white":"bg-white text-gray-600 border hover:bg-blue-50"}`}>{s.toUpperCase()}</button>)}</div>
-            {stab==="apache"&&<div className="bg-white rounded-xl p-5 shadow-sm border"><h3 className="font-bold text-gray-800 mb-4">APACHE II</h3><div className="grid grid-cols-2 md:grid-cols-3 gap-3">{[["age","Age"],["temperature","Temp (°C)"],["mean_arterial_pressure","MAP"],["heart_rate","Heart Rate"],["respiratory_rate","Resp Rate"],["pao2","PaO2"],["fio2","FiO2"],["arterial_ph","pH"],["sodium","Sodium"],["potassium","Potassium"],["creatinine","Creatinine"],["hematocrit","Hematocrit"],["wbc","WBC"],["gcs","GCS"]].map(([k,l])=><div key={k}><label className="text-xs text-gray-500">{l}</label><input type="number" step="0.01" value={apache[k]} onChange={e=>setApache({...apache,[k]:parseFloat(e.target.value)||0})} className={inp}/></div>)}</div><div className="flex gap-4 mt-3 text-sm"><label className="flex items-center gap-1 cursor-pointer"><input type="checkbox" checked={apache.chronic_health} onChange={e=>setApache({...apache,chronic_health:e.target.checked})}/> Chronic Health</label><label className="flex items-center gap-1 cursor-pointer"><input type="checkbox" checked={apache.postoperative} onChange={e=>setApache({...apache,postoperative:e.target.checked})}/> Postoperative</label></div><button onClick={()=>calcScore("apache-ii",apache)} className="mt-4 w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700">Calculate APACHE II</button></div>}
-            {stab==="sofa"&&<div className="bg-white rounded-xl p-5 shadow-sm border"><h3 className="font-bold text-gray-800 mb-4">SOFA</h3><div className="grid grid-cols-2 md:grid-cols-3 gap-3">{[["pao2","PaO2"],["fio2","FiO2"],["platelets","Platelets"],["bilirubin","Bilirubin"],["mean_arterial_pressure","MAP"],["gcs","GCS"],["creatinine","Creatinine"],["urine_output","Urine Output"],["dopamine_dose","Dopamine"],["norepinephrine_dose","Norepinephrine"]].map(([k,l])=><div key={k}><label className="text-xs text-gray-500">{l}</label><input type="number" step="0.01" value={sofa[k]} onChange={e=>setSofa({...sofa,[k]:parseFloat(e.target.value)||0})} className={inp}/></div>)}</div><label className="flex items-center gap-1 text-sm mt-3 cursor-pointer"><input type="checkbox" checked={sofa.mechanical_ventilation} onChange={e=>setSofa({...sofa,mechanical_ventilation:e.target.checked})}/> Mechanical Ventilation</label><button onClick={()=>calcScore("sofa",sofa)} className="mt-4 w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700">Calculate SOFA</button></div>}
-            {stab==="qsofa"&&<div className="bg-white rounded-xl p-5 shadow-sm border"><h3 className="font-bold text-gray-800 mb-4">qSOFA</h3><div className="grid grid-cols-3 gap-3">{[["respiratory_rate","Respiratory Rate"],["systolic_bp","Systolic BP"],["gcs","GCS"]].map(([k,l])=><div key={k}><label className="text-xs text-gray-500">{l}</label><input type="number" value={qsofa[k]} onChange={e=>setQsofa({...qsofa,[k]:parseInt(e.target.value)||0})} className={inp}/></div>)}</div><button onClick={()=>calcScore("qsofa",qsofa)} className="mt-4 w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700">Calculate qSOFA</button></div>}
-            {stab==="gcs"&&<div className="bg-white rounded-xl p-5 shadow-sm border"><h3 className="font-bold text-gray-800 mb-4">GCS</h3><div className="grid grid-cols-3 gap-3">{[["eye_response","Eye (1-4)",1,4],["verbal_response","Verbal (1-5)",1,5],["motor_response","Motor (1-6)",1,6]].map(([k,l,mn,mx])=><div key={k}><label className="text-xs text-gray-500">{l}</label><input type="number" min={mn} max={mx} value={gcs[k]} onChange={e=>setGcs({...gcs,[k]:parseInt(e.target.value)||mn})} className={inp}/></div>)}</div><label className="flex items-center gap-1 text-sm mt-3 cursor-pointer"><input type="checkbox" checked={gcs.sedated} onChange={e=>setGcs({...gcs,sedated:e.target.checked})}/> Sedated</label><button onClick={()=>calcScore("gcs",gcs)} className="mt-4 w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700">Calculate GCS</button></div>}
-            {["ranson","saps","mods","murray","alvarado"].includes(stab)&&<div className="bg-white rounded-xl p-5 shadow-sm border"><h3 className="font-bold text-gray-800 mb-4">{stab.toUpperCase()}</h3><div className="grid grid-cols-2 md:grid-cols-3 gap-3">{Object.entries(stab==="ranson"?ranson:stab==="saps"?saps:stab==="mods"?mods:stab==="murray"?murray:alvarado).map(([k,v])=><div key={k}>{typeof v==="boolean"?(<label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg border bg-gray-50 hover:bg-blue-50 transition-colors"><input type="checkbox" checked={v} onChange={e=>{const val=e.target.checked;if(stab==="ranson")setRanson({...ranson,[k]:val});else if(stab==="saps")setSaps({...saps,[k]:val});else if(stab==="mods")setMods({...mods,[k]:val});else if(stab==="murray")setMurray({...murray,[k]:val});else setAlvarado({...alvarado,[k]:val});}} className="w-4 h-4 accent-blue-600"/><span className="text-xs text-gray-600 font-medium">{k.replace(/_/g," ")}</span></label>):(<div><label className="text-xs text-gray-500 block mb-1">{k.replace(/_/g," ")}</label><input type="number" step="0.01" value={v} onChange={e=>{const val=parseFloat(e.target.value)||0;if(stab==="ranson")setRanson({...ranson,[k]:val});else if(stab==="saps")setSaps({...saps,[k]:val});else if(stab==="mods")setMods({...mods,[k]:val});else if(stab==="murray")setMurray({...murray,[k]:val});else setAlvarado({...alvarado,[k]:val});}} className={inp}/></div>)}</div>)}</div><button onClick={()=>calcScore(stab,stab==="ranson"?ranson:stab==="saps"?saps:stab==="mods"?mods:stab==="murray"?murray:alvarado)} className="mt-4 w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700">Calculate {stab.toUpperCase()}</button></div>}
+            {stab==="apache"&&<div className="bg-white rounded-xl p-5 shadow-sm border"><h3 className="font-bold text-gray-800 mb-4">APACHE II</h3><div className="grid grid-cols-2 md:grid-cols-3 gap-3">{[["age","Age"],["temperature","Temp (°C)"],["mean_arterial_pressure","MAP"],["heart_rate","Heart Rate"],["respiratory_rate","Resp Rate"],["pao2","PaO2"],["fio2","FiO2"],["arterial_ph","pH"],["sodium","Sodium"],["potassium","Potassium"],["creatinine","Creatinine"],["hematocrit","Hematocrit"],["wbc","WBC"],["gcs","GCS"]].map(([k,l])=><div key={k}><label className="text-xs text-gray-500">{l}</label><input type="number" step="0.01" value={apache[k]} onChange={e=>setApache({...apache,[k]:parseFloat(e.target.value)||0})} className={inp}/></div>)}</div><div className="flex gap-4 mt-3 text-sm"><label className="flex items-center gap-1 cursor-pointer"><input type="checkbox" checked={apache.chronic_health} onChange={e=>setApache({...apache,chronic_health:e.target.checked})}/> Chronic Health</label><label className="flex items-center gap-1 cursor-pointer"><input type="checkbox" checked={apache.postoperative} onChange={e=>setApache({...apache,postoperative:e.target.checked})}/> Postoperative</label></div><button onClick={()=>calcScore("apache-ii",apache)} className="mt-4 w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700">Calculate APACHE II</button>{scores.apache&&<div className="mt-4 p-4 bg-blue-50 border border-blue-300 rounded-lg"><p className="text-xs font-bold text-blue-700 uppercase mb-2"> Score Result</p><div className="grid grid-cols-3 gap-3"><div className="text-center"><p className="text-sm text-gray-600">Score</p><p className="text-3xl font-black text-blue-600">{scores.apache.total_score}</p></div><div className="text-center"><p className="text-sm text-gray-600">Category</p><p className="text-lg font-bold text-gray-800">{scores.apache.risk_category}</p></div><div className="text-center"><p className="text-sm text-gray-600">Mortality Risk</p><p className="text-2xl font-black text-red-600">{scores.apache.mortality_risk}%</p></div></div></div>}</div>}
+            {stab==="sofa"&&<div className="bg-white rounded-xl p-5 shadow-sm border"><h3 className="font-bold text-gray-800 mb-4">SOFA</h3><div className="grid grid-cols-2 md:grid-cols-3 gap-3">{[["pao2","PaO2"],["fio2","FiO2"],["platelets","Platelets"],["bilirubin","Bilirubin"],["mean_arterial_pressure","MAP"],["gcs","GCS"],["creatinine","Creatinine"],["urine_output","Urine Output"],["dopamine_dose","Dopamine"],["norepinephrine_dose","Norepinephrine"]].map(([k,l])=><div key={k}><label className="text-xs text-gray-500">{l}</label><input type="number" step="0.01" value={sofa[k]} onChange={e=>setSofa({...sofa,[k]:parseFloat(e.target.value)||0})} className={inp}/></div>)}</div><label className="flex items-center gap-1 text-sm mt-3 cursor-pointer"><input type="checkbox" checked={sofa.mechanical_ventilation} onChange={e=>setSofa({...sofa,mechanical_ventilation:e.target.checked})}/> Mechanical Ventilation</label><button onClick={()=>calcScore("sofa",sofa)} className="mt-4 w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700">Calculate SOFA</button>{scores.sofa&&<div className="mt-4 p-4 bg-blue-50 border border-blue-300 rounded-lg"><p className="text-xs font-bold text-blue-700 uppercase mb-2"> Score Result</p><div className="grid grid-cols-2 gap-3"><div className="text-center"><p className="text-sm text-gray-600">Score</p><p className="text-3xl font-black text-blue-600">{scores.sofa.total_score}</p></div><div className="text-center"><p className="text-sm text-gray-600">Category</p><p className="text-lg font-bold text-gray-800">{scores.sofa.risk_category}</p></div></div></div>}</div>}
+            {stab==="qsofa"&&<div className="bg-white rounded-xl p-5 shadow-sm border"><h3 className="font-bold text-gray-800 mb-4">qSOFA</h3><div className="grid grid-cols-3 gap-3">{[["respiratory_rate","Respiratory Rate"],["systolic_bp","Systolic BP"],["gcs","GCS"]].map(([k,l])=><div key={k}><label className="text-xs text-gray-500">{l}</label><input type="number" value={qsofa[k]} onChange={e=>setQsofa({...qsofa,[k]:parseInt(e.target.value)||0})} className={inp}/></div>)}</div><button onClick={()=>calcScore("qsofa",qsofa)} className="mt-4 w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700">Calculate qSOFA</button>{scores.qsofa&&<div className="mt-4 p-4 bg-blue-50 border border-blue-300 rounded-lg"><p className="text-xs font-bold text-blue-700 uppercase mb-2"> Score Result</p><div className="grid grid-cols-2 gap-3"><div className="text-center"><p className="text-sm text-gray-600">Score</p><p className="text-3xl font-black text-blue-600">{scores.qsofa.total_score}/3</p></div><div className="text-center"><p className="text-sm text-gray-600">Risk Level</p><p className={`text-lg font-bold ${scores.qsofa.high_risk?"text-red-600":"text-green-600"}`}>{scores.qsofa.high_risk?" HIGH RISK":" LOW RISK"}</p></div></div></div>}</div>}
+            {stab==="gcs"&&<div className="bg-white rounded-xl p-5 shadow-sm border"><h3 className="font-bold text-gray-800 mb-4">GCS</h3><div className="grid grid-cols-3 gap-3">{[["eye_response","Eye (1-4)",1,4],["verbal_response","Verbal (1-5)",1,5],["motor_response","Motor (1-6)",1,6]].map(([k,l,mn,mx])=><div key={k}><label className="text-xs text-gray-500">{l}</label><input type="number" min={mn} max={mx} value={gcs[k]} onChange={e=>setGcs({...gcs,[k]:parseInt(e.target.value)||mn})} className={inp}/></div>)}</div><label className="flex items-center gap-1 text-sm mt-3 cursor-pointer"><input type="checkbox" checked={gcs.sedated} onChange={e=>setGcs({...gcs,sedated:e.target.checked})}/> Sedated</label><button onClick={()=>calcScore("gcs",gcs)} className="mt-4 w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700">Calculate GCS</button>{scores.gcs&&<div className="mt-4 p-4 bg-blue-50 border border-blue-300 rounded-lg"><p className="text-xs font-bold text-blue-700 uppercase mb-2"> Score Result</p><div className="grid grid-cols-2 gap-3"><div className="text-center"><p className="text-sm text-gray-600">Score</p><p className="text-3xl font-black text-blue-600">{scores.gcs.total_score}/15</p></div><div className="text-center"><p className="text-sm text-gray-600">Severity</p><p className="text-lg font-bold text-gray-800">{scores.gcs.severity}</p></div></div></div>}</div>}
+            {["ranson","saps","mods","murray","alvarado"].includes(stab)&&<div className="bg-white rounded-xl p-5 shadow-sm border"><h3 className="font-bold text-gray-800 mb-4">{stab.toUpperCase()}</h3><div className="grid grid-cols-2 md:grid-cols-3 gap-3">{Object.entries(stab==="ranson"?ranson:stab==="saps"?saps:stab==="mods"?mods:stab==="murray"?murray:alvarado).map(([k,v])=><div key={k}>{typeof v==="boolean"?(<label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg border bg-gray-50 hover:bg-blue-50 transition-colors"><input type="checkbox" checked={v} onChange={e=>{const val=e.target.checked;if(stab==="ranson")setRanson({...ranson,[k]:val});else if(stab==="saps")setSaps({...saps,[k]:val});else if(stab==="mods")setMods({...mods,[k]:val});else if(stab==="murray")setMurray({...murray,[k]:val});else setAlvarado({...alvarado,[k]:val});}} className="w-4 h-4 accent-blue-600"/><span className="text-xs text-gray-600 font-medium">{k.replace(/_/g," ")}</span></label>):(<div><label className="text-xs text-gray-500 block mb-1">{k.replace(/_/g," ")}</label><input type="number" step="0.01" value={v} onChange={e=>{const val=parseFloat(e.target.value)||0;if(stab==="ranson")setRanson({...ranson,[k]:val});else if(stab==="saps")setSaps({...saps,[k]:val});else if(stab==="mods")setMods({...mods,[k]:val});else if(stab==="murray")setMurray({...murray,[k]:val});else setAlvarado({...alvarado,[k]:val});}} className={inp}/></div>)}</div>)}</div><button onClick={()=>calcScore(stab,stab==="ranson"?ranson:stab==="saps"?saps:stab==="mods"?mods:stab==="murray"?murray:alvarado)} className="mt-4 w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700">Calculate {stab.toUpperCase()}</button>
+
+{/* Score Result Display */}
+{(stab==="ranson"&&scores.ranson||stab==="saps"&&scores.saps||stab==="mods"&&scores.mods||stab==="murray"&&scores.murray||stab==="alvarado"&&scores.alvarado)&&(
+  <div className="mt-4 p-4 bg-blue-50 border-2 border-blue-300 rounded-lg">
+    <p className="text-xs font-bold text-blue-700 uppercase mb-3"> {stab.toUpperCase()} Score Result</p>
+    <div className="grid grid-cols-3 gap-3">
+      <div className="bg-white rounded-lg p-3 text-center border border-blue-200">
+        <p className="text-xs text-gray-600 font-medium">Score</p>
+        <p className="text-3xl font-black text-blue-600 mt-1">{(stab==="ranson"?scores.ranson:stab==="saps"?scores.saps:stab==="mods"?scores.mods:stab==="murray"?scores.murray:scores.alvarado).total_score}</p>
+      </div>
+      <div className="bg-white rounded-lg p-3 text-center border border-blue-200">
+        <p className="text-xs text-gray-600 font-medium">Category</p>
+        <p className="text-lg font-bold text-gray-800 mt-1">{(stab==="ranson"?scores.ranson:stab==="saps"?scores.saps:stab==="mods"?scores.mods:stab==="murray"?scores.murray:scores.alvarado).risk_category}</p>
+      </div>
+      <div className="bg-white rounded-lg p-3 text-center border border-blue-200">
+        <p className="text-xs text-gray-600 font-medium">Status</p>
+        <p className="text-lg font-bold text-green-600 mt-1"> Calculated</p>
+      </div>
+    </div>
+  </div>
+)}
+</div>}
           </div>
         )}
 
-        {/* ── ANTIMICROBIAL STEWARDSHIP ── */}
+        {/*  ANTIMICROBIAL STEWARDSHIP  */}
         {tab==="stewardship"&&(
           <div className="space-y-5">
-            <div><h2 className="text-lg font-bold text-gray-800">🦠 Antimicrobial Stewardship</h2><p className="text-sm text-gray-500">Culture report · AI antibiotic engine · DOT tracker · Nutrition planner</p></div>
+            <div><h2 className="text-lg font-bold text-gray-800"> Antimicrobial Stewardship</h2><p className="text-sm text-gray-500">Culture report · AI antibiotic engine · DOT tracker · Nutrition planner</p></div>
 
             {/* Culture Report */}
             <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-              <div className="bg-gradient-to-r from-red-700 to-red-500 px-5 py-3 flex items-center gap-2"><span className="text-white text-lg">🧫</span><span className="text-white font-bold tracking-wide text-sm uppercase">Culture Report</span></div>
+              <div className="bg-gradient-to-r from-red-700 to-red-500 px-5 py-3 flex items-center gap-2"><span className="text-white text-lg"></span><span className="text-white font-bold tracking-wide text-sm uppercase">Culture Report</span></div>
               <div className="p-5">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
                   <div><label className="text-xs font-semibold text-gray-500 block mb-1">Gram Type *</label><select value={cultureData.gramType} onChange={e=>setCultureData({...cultureData,gramType:e.target.value})} className={inp}><option value="gram-negative">Gram Negative (–)</option><option value="gram-positive">Gram Positive (+)</option><option value="fungal">Fungal</option><option value="anaerobe">Anaerobe</option><option value="unknown">Unknown / Pending</option></select></div>
@@ -1707,32 +1716,32 @@ export default function App() {
                   <div><label className="text-xs font-semibold text-gray-500 block mb-1">Creatinine (mg/dL)</label><input type="number" step="0.1" value={cultureData.creatinine} onChange={e=>setCultureData({...cultureData,creatinine:e.target.value})} placeholder="1.0" className={inp}/></div>
                   <div><label className="text-xs font-semibold text-gray-500 block mb-1">Renal Function</label><select value={cultureData.renal} onChange={e=>setCultureData({...cultureData,renal:e.target.value})} className={inp}><option value="normal">Normal (CrCl &gt;50)</option><option value="mild">Mild (CrCl 30–50)</option><option value="moderate">Moderate (CrCl 15–30)</option><option value="severe">Severe / AKI</option><option value="dialysis">On Dialysis</option></select></div>
                 </div>
-                {cultureData.organism&&<div className="flex flex-wrap gap-2 mb-4"><span className="bg-red-100 text-red-700 border border-red-200 px-3 py-1 rounded-full text-xs font-bold">🦠 {cultureData.organism}</span><span className={`px-3 py-1 rounded-full text-xs font-bold border ${cultureData.gramType==="gram-positive"?"bg-purple-100 text-purple-700 border-purple-200":"bg-orange-100 text-orange-700 border-orange-200"}`}>{cultureData.gramType==="gram-positive"?"Gram (+)":"Gram (–)"}</span>{cultureData.allergy&&<span className="bg-yellow-100 text-yellow-700 border border-yellow-200 px-3 py-1 rounded-full text-xs font-bold">⚠️ Allergy: {cultureData.allergy}</span>}{parseFloat(cultureData.creatinine)>1.5&&<span className="bg-blue-100 text-blue-700 border border-blue-200 px-3 py-1 rounded-full text-xs font-bold">🔵 Renal Dose Adjustment</span>}</div>}
-                <button onClick={runAbxEngine} disabled={abxLoading} className="w-full bg-gradient-to-r from-red-700 to-red-500 text-white py-3 rounded-xl font-bold text-sm hover:opacity-90 disabled:opacity-60 flex items-center justify-center gap-2">{abxLoading?<><span className="animate-spin">⚙️</span> Analyzing...</>:"🤖 Generate Antibiotic Recommendation"}</button>
+                {cultureData.organism&&<div className="flex flex-wrap gap-2 mb-4"><span className="bg-red-100 text-red-700 border border-red-200 px-3 py-1 rounded-full text-xs font-bold"> {cultureData.organism}</span><span className={`px-3 py-1 rounded-full text-xs font-bold border ${cultureData.gramType==="gram-positive"?"bg-purple-100 text-purple-700 border-purple-200":"bg-orange-100 text-orange-700 border-orange-200"}`}>{cultureData.gramType==="gram-positive"?"Gram (+)":"Gram (–)"}</span>{cultureData.allergy&&<span className="bg-yellow-100 text-yellow-700 border border-yellow-200 px-3 py-1 rounded-full text-xs font-bold"> Allergy: {cultureData.allergy}</span>}{parseFloat(cultureData.creatinine)>1.5&&<span className="bg-blue-100 text-blue-700 border border-blue-200 px-3 py-1 rounded-full text-xs font-bold"> Renal Dose Adjustment</span>}</div>}
+                <button onClick={runAbxEngine} disabled={abxLoading} className="w-full bg-gradient-to-r from-red-700 to-red-500 text-white py-3 rounded-xl font-bold text-sm hover:opacity-90 disabled:opacity-60 flex items-center justify-center gap-2">{abxLoading?<><span className="animate-spin"></span> Analyzing...</>:" Generate Antibiotic Recommendation"}</button>
               </div>
             </div>
 
             {/* AI ABX Result */}
             {abxResult&&(
               <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-                <div className="bg-gradient-to-r from-green-700 to-green-500 px-5 py-3 flex items-center justify-between"><div className="flex items-center gap-2"><span className="text-white text-lg">💊</span><span className="text-white font-bold tracking-wide text-sm uppercase">Antibiotic Recommendation</span></div><span className="bg-white bg-opacity-20 text-white text-xs px-3 py-1 rounded-full font-bold">AI-Powered</span></div>
+                <div className="bg-gradient-to-r from-green-700 to-green-500 px-5 py-3 flex items-center justify-between"><div className="flex items-center gap-2"><span className="text-white text-lg"></span><span className="text-white font-bold tracking-wide text-sm uppercase">Antibiotic Recommendation</span></div><span className="bg-white bg-opacity-20 text-white text-xs px-3 py-1 rounded-full font-bold">AI-Powered</span></div>
                 <div className="p-5">
-                  {abxResult.error&&<div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-yellow-700 text-sm mb-4">⚠️ Using rule-based fallback — AI unavailable</div>}
+                  {abxResult.error&&<div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-yellow-700 text-sm mb-4"> Using rule-based fallback — AI unavailable</div>}
                   <div className="bg-green-50 border-2 border-green-300 rounded-xl p-4 mb-4">
                     <p className="text-xs font-bold text-green-600 uppercase mb-2">Recommended Regimen</p>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      {[["💊 Drug",abxResult.recommended_drug,"text-green-800"],["📏 Dose",abxResult.dose,"text-blue-800"],["⏱️ Frequency",abxResult.frequency,"text-purple-800"],["📅 Duration",abxResult.duration,"text-orange-800"]].map(([l,v,c])=>(
+                      {[[" Drug",abxResult.recommended_drug,"text-green-800"],[" Dose",abxResult.dose,"text-blue-800"],[" Frequency",abxResult.frequency,"text-purple-800"],[" Duration",abxResult.duration,"text-orange-800"]].map(([l,v,c])=>(
                         <div key={l} className="bg-white rounded-lg p-3 border text-center shadow-sm"><p className="text-xs text-gray-400 mb-1">{l}</p><p className={`font-bold text-sm ${c}`}>{v||"—"}</p></div>
                       ))}
                     </div>
                     {abxResult.route&&<div className="mt-2"><span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold border border-blue-200">Route: {abxResult.route}</span></div>}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {abxResult.rationale&&<div className="bg-blue-50 border border-blue-200 rounded-xl p-3"><p className="text-xs font-bold text-blue-700 mb-1">📋 Clinical Rationale</p><p className="text-sm text-gray-700">{abxResult.rationale}</p></div>}
-                    {abxResult.renal_adjustment&&<div className={`border rounded-xl p-3 ${parseFloat(cultureData.creatinine)>1.5?"bg-red-50 border-red-200":"bg-green-50 border-green-200"}`}><p className={`text-xs font-bold mb-1 ${parseFloat(cultureData.creatinine)>1.5?"text-red-700":"text-green-700"}`}>🫘 Renal Adjustment</p><p className="text-sm text-gray-700">{abxResult.renal_adjustment}</p></div>}
-                    {abxResult.allergy_note&&<div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3"><p className="text-xs font-bold text-yellow-700 mb-1">⚠️ Allergy Check</p><p className="text-sm text-gray-700">{abxResult.allergy_note}</p></div>}
-                    {abxResult.deescalation&&<div className="bg-purple-50 border border-purple-200 rounded-xl p-3"><p className="text-xs font-bold text-purple-700 mb-1">📉 De-escalation Plan</p><p className="text-sm text-gray-700">{abxResult.deescalation}</p></div>}
-                    {abxResult.iv_to_oral&&<div className="bg-teal-50 border border-teal-200 rounded-xl p-3 md:col-span-2"><p className="text-xs font-bold text-teal-700 mb-1">💊 IV to Oral Switch</p><p className="text-sm text-gray-700">{abxResult.iv_to_oral}</p></div>}
+                    {abxResult.rationale&&<div className="bg-blue-50 border border-blue-200 rounded-xl p-3"><p className="text-xs font-bold text-blue-700 mb-1"> Clinical Rationale</p><p className="text-sm text-gray-700">{abxResult.rationale}</p></div>}
+                    {abxResult.renal_adjustment&&<div className={`border rounded-xl p-3 ${parseFloat(cultureData.creatinine)>1.5?"bg-red-50 border-red-200":"bg-green-50 border-green-200"}`}><p className={`text-xs font-bold mb-1 ${parseFloat(cultureData.creatinine)>1.5?"text-red-700":"text-green-700"}`}> Renal Adjustment</p><p className="text-sm text-gray-700">{abxResult.renal_adjustment}</p></div>}
+                    {abxResult.allergy_note&&<div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3"><p className="text-xs font-bold text-yellow-700 mb-1"> Allergy Check</p><p className="text-sm text-gray-700">{abxResult.allergy_note}</p></div>}
+                    {abxResult.deescalation&&<div className="bg-purple-50 border border-purple-200 rounded-xl p-3"><p className="text-xs font-bold text-purple-700 mb-1"> De-escalation Plan</p><p className="text-sm text-gray-700">{abxResult.deescalation}</p></div>}
+                    {abxResult.iv_to_oral&&<div className="bg-teal-50 border border-teal-200 rounded-xl p-3 md:col-span-2"><p className="text-xs font-bold text-teal-700 mb-1"> IV to Oral Switch</p><p className="text-sm text-gray-700">{abxResult.iv_to_oral}</p></div>}
                   </div>
                 </div>
               </div>
@@ -1740,13 +1749,13 @@ export default function App() {
 
             {/* DOT Tracker */}
             <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-              <div className="bg-gradient-to-r from-blue-700 to-blue-500 px-5 py-3 flex items-center gap-2"><span className="text-white text-lg">📅</span><span className="text-white font-bold tracking-wide text-sm uppercase">Days of Therapy (DOT) Tracker</span></div>
+              <div className="bg-gradient-to-r from-blue-700 to-blue-500 px-5 py-3 flex items-center gap-2"><span className="text-white text-lg"></span><span className="text-white font-bold tracking-wide text-sm uppercase">Days of Therapy (DOT) Tracker</span></div>
               <div className="p-5">
-                {Object.keys(dotDays).length===0&&<div className="text-center py-6 text-gray-400 bg-gray-50 rounded-xl border border-dashed mb-4"><p className="text-3xl mb-2">📊</p><p className="text-sm">No antibiotics tracked. Run AI engine above to auto-start.</p></div>}
+                {Object.keys(dotDays).length===0&&<div className="text-center py-6 text-gray-400 bg-gray-50 rounded-xl border border-dashed mb-4"><p className="text-3xl mb-2"></p><p className="text-sm">No antibiotics tracked. Run AI engine above to auto-start.</p></div>}
                 <div className="space-y-3 mb-4">
                   {Object.entries(dotDays).map(([drug,info])=>{
                     const days=Math.max(0,Math.floor((new Date()-new Date(info.start))/(1000*60*60*24))),pct=Math.min(Math.round((days/(info.target||7))*100),100),overdue=days>(info.target||7);
-                    return(<div key={drug} className={`rounded-xl border p-4 ${overdue?"bg-red-50 border-red-300":"bg-green-50 border-green-200"}`}><div className="flex justify-between items-center mb-2"><div><span className="font-bold text-gray-800">{drug}</span><span className="text-xs text-gray-500 ml-2">Started: {info.start}</span></div><div className="flex items-center gap-2"><span className={`text-lg font-black ${overdue?"text-red-600":"text-green-700"}`}>{days}/{info.target} days</span>{overdue&&<span className="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded-full font-bold">⚠️ Review</span>}<button onClick={()=>setDotDays(prev=>{const n={...prev};delete n[drug];return n;})} className="text-xs text-gray-400 hover:text-red-500">✕</button></div></div><div className="w-full bg-gray-200 rounded-full h-3"><div className={`h-3 rounded-full ${overdue?"bg-red-500":"bg-green-500"}`} style={{width:`${pct}%`}}/></div>{overdue&&<p className="text-xs text-red-600 mt-1 font-medium">⚠️ Duration exceeded — reassess antibiotic</p>}</div>);
+                    return(<div key={drug} className={`rounded-xl border p-4 ${overdue?"bg-red-50 border-red-300":"bg-green-50 border-green-200"}`}><div className="flex justify-between items-center mb-2"><div><span className="font-bold text-gray-800">{drug}</span><span className="text-xs text-gray-500 ml-2">Started: {info.start}</span></div><div className="flex items-center gap-2"><span className={`text-lg font-black ${overdue?"text-red-600":"text-green-700"}`}>{days}/{info.target} days</span>{overdue&&<span className="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded-full font-bold"> Review</span>}<button onClick={()=>setDotDays(prev=>{const n={...prev};delete n[drug];return n;})} className="text-xs text-gray-400 hover:text-red-500"></button></div></div><div className="w-full bg-gray-200 rounded-full h-3"><div className={`h-3 rounded-full ${overdue?"bg-red-500":"bg-green-500"}`} style={{width:`${pct}%`}}/></div>{overdue&&<p className="text-xs text-red-600 mt-1 font-medium"> Duration exceeded — reassess antibiotic</p>}</div>);
                   })}
                 </div>
                 <div className="border-t pt-4"><p className="text-xs font-bold text-gray-500 mb-3">+ Add Manually</p>
@@ -1762,7 +1771,7 @@ export default function App() {
 
             {/* Nutrition Planner */}
             <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-              <div className="bg-gradient-to-r from-emerald-700 to-emerald-500 px-5 py-3 flex items-center gap-2"><span className="text-white text-lg">🥗</span><span className="text-white font-bold tracking-wide text-sm uppercase">ICU Nutrition Planner</span></div>
+              <div className="bg-gradient-to-r from-emerald-700 to-emerald-500 px-5 py-3 flex items-center gap-2"><span className="text-white text-lg"></span><span className="text-white font-bold tracking-wide text-sm uppercase">ICU Nutrition Planner</span></div>
               <div className="p-5">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
                   <div><label className="text-xs font-semibold text-gray-500 block mb-1">Weight (kg) *</label><input type="number" value={nutritionData.weight} onChange={e=>setNutritionData({...nutritionData,weight:e.target.value})} placeholder="70" className={inp}/></div>
@@ -1774,7 +1783,7 @@ export default function App() {
                   <label className="flex items-center gap-2 cursor-pointer text-sm font-medium"><input type="checkbox" className="w-4 h-4" checked={nutritionData.trauma} onChange={e=>setNutritionData({...nutritionData,trauma:e.target.checked})}/> Trauma / Post-surgical</label>
                   <label className="flex items-center gap-2 cursor-pointer text-sm font-medium"><input type="checkbox" className="w-4 h-4" checked={nutritionData.enteralAccess} onChange={e=>setNutritionData({...nutritionData,enteralAccess:e.target.checked})}/> Enteral Access (NGT)</label>
                 </div>
-                <button onClick={calcNutrition} className="w-full bg-gradient-to-r from-emerald-700 to-emerald-500 text-white py-3 rounded-xl font-bold text-sm hover:opacity-90">🥗 Calculate Nutrition Plan</button>
+                <button onClick={calcNutrition} className="w-full bg-gradient-to-r from-emerald-700 to-emerald-500 text-white py-3 rounded-xl font-bold text-sm hover:opacity-90"> Calculate Nutrition Plan</button>
                 {nutritionResult&&(
                   <div className="mt-5 space-y-4">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -1783,8 +1792,8 @@ export default function App() {
                       ))}
                     </div>
                     <div className="grid grid-cols-2 gap-3">
-                      <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4"><p className="text-xs font-bold text-emerald-700 uppercase mb-2">🍼 Feeding Route</p><p className="text-sm font-semibold text-gray-800">{nutritionResult.route}</p>{nutritionResult.isSepsis&&<p className="text-xs text-emerald-600 mt-2">ESPEN: Start enteral within 24–48h of ICU admission</p>}</div>
-                      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4"><p className="text-xs font-bold text-blue-700 uppercase mb-2">🧪 Recommended Formula</p><p className="text-sm font-semibold text-gray-800">{nutritionResult.formula}</p></div>
+                      <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4"><p className="text-xs font-bold text-emerald-700 uppercase mb-2"> Feeding Route</p><p className="text-sm font-semibold text-gray-800">{nutritionResult.route}</p>{nutritionResult.isSepsis&&<p className="text-xs text-emerald-600 mt-2">ESPEN: Start enteral within 24–48h of ICU admission</p>}</div>
+                      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4"><p className="text-xs font-bold text-blue-700 uppercase mb-2"> Recommended Formula</p><p className="text-sm font-semibold text-gray-800">{nutritionResult.formula}</p></div>
                     </div>
                   </div>
                 )}
@@ -1793,16 +1802,16 @@ export default function App() {
           </div>
         )}
 
-        {/* ── RESULTS ── */}
+        {/*  RESULTS  */}
         {tab==="results"&&(
           <div>
-            {/* ── AI Prediction Accuracy Summary ── */}
+            {/*  AI Prediction Accuracy Summary  */}
             {(()=>{
               const withOutcome = hospitalPatients.filter(p=>p.outcome);
               const total = withOutcome.length;
               if(total===0) return (
                 <div className="mb-4 bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3">
-                  <span className="text-2xl">📊</span>
+                  <span className="text-2xl"></span>
                   <div>
                     <p className="font-bold text-blue-700">AI Prediction Accuracy Tracker</p>
                     <p className="text-sm text-blue-600 mt-1">Discharge patients and record outcomes to see how accurately the AI predicted sepsis and mortality. This closes the feedback loop.</p>
@@ -1816,7 +1825,7 @@ export default function App() {
               return (
                 <div className="mb-4 bg-white rounded-xl border shadow-sm overflow-hidden">
                   <div className="bg-gradient-to-r from-indigo-700 to-purple-600 px-5 py-3 flex justify-between items-center">
-                    <div><p className="text-white font-bold">📊 AI Prediction Accuracy — Feedback Loop</p><p className="text-indigo-200 text-xs">{total} patient{total!==1?"s":""} with recorded outcomes</p></div>
+                    <div><p className="text-white font-bold"> AI Prediction Accuracy — Feedback Loop</p><p className="text-indigo-200 text-xs">{total} patient{total!==1?"s":""} with recorded outcomes</p></div>
                     <span className="bg-white bg-opacity-20 text-white text-xs px-3 py-1 rounded-full font-bold">Live Validation</span>
                   </div>
                   <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -1846,7 +1855,7 @@ export default function App() {
                         {withOutcome.map((p,i)=>(
                           <div key={i} className={`flex items-center justify-between px-3 py-2 rounded-lg border text-sm ${p.outcome.mortalityOutcome==="expired"?"bg-red-50 border-red-200":"bg-green-50 border-green-200"}`}>
                             <div className="flex items-center gap-2">
-                              <span>{p.outcome.mortalityOutcome==="expired"?"❌":"✅"}</span>
+                              <span>{p.outcome.mortalityOutcome==="expired"?"":""}</span>
                               <div>
                                 <span className="font-medium text-gray-800">{p.name}</span>
                                 <span className="text-xs text-gray-400 ml-2">{p.patient_id}</span>
@@ -1871,8 +1880,8 @@ export default function App() {
                 </div>
               );
             })()}
-            <h2 className="text-lg font-bold text-gray-800 mb-4">📈 Scoring Results</h2>
-            {Object.keys(scores).length===0?<div className="text-center py-16 text-gray-400"><div className="text-5xl mb-3">📋</div><p>No scores yet - Go to Scoring tab to calculate</p></div>:(
+            <h2 className="text-lg font-bold text-gray-800 mb-4"> Scoring Results</h2>
+            {Object.keys(scores).length===0?<div className="text-center py-16 text-gray-400"><div className="text-5xl mb-3"></div><p>No scores yet - Go to Scoring tab to calculate</p></div>:(
               <div>
                 {radarData.some(d=>d.v>0)&&<div className="bg-white rounded-xl p-5 shadow-sm border mb-5"><h3 className="font-bold text-gray-700 mb-4">Risk Profile Radar</h3><ResponsiveContainer width="100%" height={260}><RadarChart data={radarData}><PolarGrid/><PolarAngleAxis dataKey="s"/><PolarRadiusAxis domain={[0,71]}/><Radar dataKey="v" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.3}/><Tooltip/></RadarChart></ResponsiveContainer></div>}
               </div>
@@ -1880,16 +1889,16 @@ export default function App() {
           </div>
         )}
 
-        {/* ── ICU REPORT TAB ── */}
+        {/*  ICU REPORT TAB  */}
         {tab==="report"&&(
           <div>
             {!selected?(
-              <div className="text-center py-10 bg-yellow-50 rounded-xl border border-yellow-200"><p className="text-yellow-700 font-medium">⚠️ Select a patient first</p><button onClick={()=>setTab("patients")} className="mt-3 bg-yellow-500 text-white px-4 py-2 rounded-lg text-sm">Go to Patients</button></div>
+              <div className="text-center py-10 bg-yellow-50 rounded-xl border border-yellow-200"><p className="text-yellow-700 font-medium"> Select a patient first</p><button onClick={()=>setTab("patients")} className="mt-3 bg-yellow-500 text-white px-4 py-2 rounded-lg text-sm">Go to Patients</button></div>
             ):(
               <div className="bg-white rounded-xl p-5 shadow-sm border">
                 <div className="flex justify-between items-start mb-4">
-                  <div><h2 className="text-lg font-bold text-gray-800">🧾 ICU Clinical Report</h2><p className="text-sm text-gray-500">Patient data auto-fetched. Fill in clinical fields below.</p></div>
-                  <span className="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full border border-green-300">✅ Auto-fetched from MongoDB</span>
+                  <div><h2 className="text-lg font-bold text-gray-800"> ICU Clinical Report</h2><p className="text-sm text-gray-500">Patient data auto-fetched. Fill in clinical fields below.</p></div>
+                  <span className="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full border border-green-300"> Auto-fetched from MongoDB</span>
                 </div>
 
                 {/* Auto-fetched preview */}
@@ -1914,7 +1923,7 @@ export default function App() {
                     <div><label className="text-xs text-gray-500 font-medium block mb-1">Override HR (bpm)</label><input type="number" value={reportData.hr} onChange={e=>rd("hr",e.target.value)} className={inp}/></div>
                   </div>
 
-                  <h3 className="text-sm font-bold text-gray-700 mb-3">💊 Treatment Plan</h3>
+                  <h3 className="text-sm font-bold text-gray-700 mb-3"> Treatment Plan</h3>
                   <div className="grid grid-cols-2 gap-3 mb-4">
                     {[["antibiotics","Antibiotics","e.g. Pip-Taz 4.5g IV Q6H"],["fluids","IV Fluids","e.g. NS 1L over 2hr"],["vasopressors","Vasopressors","e.g. Norepinephrine 0.1 mcg/kg/min"],["ventilation","Ventilation","e.g. High flow O2, BiPAP"]].map(([k,l,ph])=>(
                       <div key={k}><label className="text-xs text-gray-500 font-medium block mb-1">{l}</label><input value={reportData[k]} onChange={e=>rd(k,e.target.value)} placeholder={ph} className={inp}/></div>
@@ -1923,14 +1932,14 @@ export default function App() {
                   <div><label className="text-xs text-gray-500 font-medium block mb-1">Additional Notes</label><textarea value={reportData.notes} onChange={e=>rd("notes",e.target.value)} placeholder="Additional observations, follow-up plans..." className={`${inp} h-16 resize-none`}/></div>
 
                   {/* Lab Summary panel */}
-                  <h3 className="text-sm font-bold text-gray-700 mb-3 mt-5">🔬 Basic Lab Summary</h3>
+                  <h3 className="text-sm font-bold text-gray-700 mb-3 mt-5"> Basic Lab Summary</h3>
                   <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mb-2">
                     {[{label:"HR",value:reportData.hr,unit:"bpm",warn:parseFloat(reportData.hr)>120||parseFloat(reportData.hr)<50},{label:"BP",value:reportData.sbp&&reportData.dbp?`${reportData.sbp}/${reportData.dbp}`:"",unit:"mmHg",warn:parseFloat(reportData.sbp)<90},{label:"Sugar",value:reportData.sugar,unit:"mg/dL",warn:parseFloat(reportData.sugar)>200||parseFloat(reportData.sugar)<70},{label:"Hb",value:reportData.hb,unit:"g/dL",warn:parseFloat(reportData.hb)<8},{label:"WBC",value:reportData.wbc,unit:"×10³",warn:parseFloat(reportData.wbc)>11||parseFloat(reportData.wbc)<4},{label:"Creatinine",value:reportData.creatinine,unit:"mg/dL",warn:parseFloat(reportData.creatinine)>1.5}].map((item,i)=>(
                       <div key={i} className={`rounded-xl border p-3 text-center ${item.warn&&item.value?"bg-red-50 border-red-300":"bg-white border-gray-200"}`}>
                         <p className="text-xs text-gray-400 mb-1">{item.label}</p>
                         <p className={`text-base font-black ${item.warn&&item.value?"text-red-600":"text-gray-800"}`}>{item.value||"—"}</p>
                         <p className="text-xs text-gray-400">{item.unit}</p>
-                        {item.warn&&item.value&&<p className="text-xs text-red-500 font-bold">⚠️</p>}
+                        {item.warn&&item.value&&<p className="text-xs text-red-500 font-bold"></p>}
                       </div>
                     ))}
                   </div>
@@ -1940,14 +1949,14 @@ export default function App() {
                 {(reportData.score_apache||reportData.score_sofa||reportData.score_qsofa||reportData.score_gcs||reportData.score_ranson||reportData.score_saps||reportData.score_mods||reportData.score_murray||reportData.score_alvarado)&&(
                   <div className="mt-5 bg-teal-50 border border-teal-200 rounded-xl p-4">
                     <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-sm font-bold text-teal-800">📊 Scoring Results — Auto-populated from Scoring Tab</h3>
-                      <span className="text-xs bg-teal-600 text-white px-2 py-0.5 rounded-full font-bold">✅ Included in PDF</span>
+                      <h3 className="text-sm font-bold text-teal-800"> Scoring Results — Auto-populated from Scoring Tab</h3>
+                      <span className="text-xs bg-teal-600 text-white px-2 py-0.5 rounded-full font-bold"> Included in PDF</span>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                       {[
                         reportData.score_apache&&{label:"APACHE II",score:reportData.score_apache,sub:`${reportData.score_apache_mort}% mortality · ${reportData.score_apache_cat}`,color:"red"},
                         reportData.score_sofa&&{label:"SOFA",score:reportData.score_sofa,sub:reportData.score_sofa_cat,color:"orange"},
-                        reportData.score_qsofa!=null&&{label:"qSOFA",score:`${reportData.score_qsofa}/3`,sub:reportData.score_qsofa_high?"⚠️ HIGH RISK":"✅ Low Risk",color:reportData.score_qsofa_high?"red":"green"},
+                        reportData.score_qsofa!=null&&{label:"qSOFA",score:`${reportData.score_qsofa}/3`,sub:reportData.score_qsofa_high?" HIGH RISK":" Low Risk",color:reportData.score_qsofa_high?"red":"green"},
                         reportData.score_gcs&&{label:"GCS",score:`${reportData.score_gcs}/15`,sub:reportData.score_gcs_sev,color:parseFloat(reportData.score_gcs)<9?"red":parseFloat(reportData.score_gcs)<13?"orange":"green"},
                         reportData.score_ranson&&{label:"Ranson",score:reportData.score_ranson,sub:reportData.score_ranson_cat,color:"purple"},
                         reportData.score_saps&&{label:"SAPS",score:reportData.score_saps,sub:`${reportData.score_saps_mort}% mortality`,color:"blue"},
@@ -1966,19 +1975,19 @@ export default function App() {
                         );
                       })}
                     </div>
-                    <p className="text-xs text-teal-600 mt-2">Go to 📋 Scoring tab to calculate more scores — they will appear here automatically.</p>
+                    <p className="text-xs text-teal-600 mt-2">Go to  Scoring tab to calculate more scores — they will appear here automatically.</p>
                   </div>
                 )}
                 {!(reportData.score_apache||reportData.score_sofa||reportData.score_qsofa||reportData.score_gcs)&&(
                   <div className="mt-4 bg-gray-50 border border-dashed border-gray-300 rounded-xl p-4 text-center">
-                    <p className="text-sm text-gray-500 mb-2">📋 No scores calculated yet</p>
+                    <p className="text-sm text-gray-500 mb-2"> No scores calculated yet</p>
                     <button onClick={()=>setTab("scoring")} className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700">Go to Scoring Tab →</button>
                     <p className="text-xs text-gray-400 mt-2">Scores will auto-appear here once calculated</p>
                   </div>
                 )}
 
                 <button onClick={()=>setShowReport(true)} className="mt-5 w-full bg-gradient-to-r from-blue-900 to-blue-700 text-white py-3 rounded-xl font-bold text-base hover:opacity-90 shadow-md">
-                  🧾 Generate ICU Clinical Report PDF →
+                   Generate ICU Clinical Report PDF →
                 </button>
               </div>
             )}

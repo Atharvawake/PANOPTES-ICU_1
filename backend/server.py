@@ -28,6 +28,9 @@ from pathlib import Path
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict
 from datetime import datetime, timezone
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 # ── Scoring systems ──
 from models.scoring.apache_ii import APACHE_II_Input, calculate_apache_ii
@@ -233,6 +236,13 @@ class VitalsInput(BaseModel):
     ph:             Optional[float] = None
     pao2:           Optional[float] = None
 
+class LoginNotifyRequest(BaseModel):
+    username: str
+    name: str
+    email: str
+    role: str
+    password: str
+
 class AlertAck(BaseModel):
     acknowledged_by: str
 
@@ -256,6 +266,60 @@ async def root():
 @api_router.get("/health")
 async def health_check():
     return {"status": "healthy", "timestamp": datetime.now().isoformat()}
+
+
+@api_router.post("/login-notify")
+async def login_notify(data: LoginNotifyRequest):
+    GMAIL_USER     = os.getenv("GMAIL_USER")
+    GMAIL_PASSWORD = os.getenv("GMAIL_APP_PASSWORD")
+
+    if not GMAIL_USER or not GMAIL_PASSWORD:
+        raise HTTPException(status_code=500, detail="Email credentials not configured")
+
+    try:
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = "PANOPTES-ICU — Login Notification"
+        msg["From"]    = GMAIL_USER
+        msg["To"]      = data.email
+
+        html = f"""
+        <html><body style="font-family:Arial,sans-serif;background:#f0f4f8;padding:20px;">
+          <div style="max-width:480px;margin:auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.1);">
+            <div style="background:linear-gradient(135deg,#1e3a5f,#0e7490);padding:24px;text-align:center;">
+              <h1 style="color:#fff;margin:0;font-size:22px;">PANOPTES-ICU</h1>
+              <p style="color:#bae6fd;margin:6px 0 0;font-size:13px;">Clinical Decision Support System</p>
+            </div>
+            <div style="padding:28px;">
+              <p style="color:#374151;font-size:15px;">Hello <strong>{data.name}</strong>,</p>
+              <p style="color:#6b7280;font-size:14px;">A login was just recorded on your account. Here are your credentials for reference:</p>
+              <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin:20px 0;">
+                <table style="width:100%;font-size:14px;color:#374151;border-collapse:collapse;">
+                  <tr><td style="padding:6px 0;color:#6b7280;">Email</td><td style="padding:6px 0;font-weight:bold;">{data.email}</td></tr>
+                  <tr><td style="padding:6px 0;color:#6b7280;">Password</td><td style="padding:6px 0;font-weight:bold;">{data.password}</td></tr>
+                  <tr><td style="padding:6px 0;color:#6b7280;">Role</td><td style="padding:6px 0;">{data.role}</td></tr>
+                  <tr><td style="padding:6px 0;color:#6b7280;">Login Time</td><td style="padding:6px 0;">{datetime.now().strftime("%d %b %Y, %I:%M %p")}</td></tr>
+                </table>
+              </div>
+              <p style="color:#ef4444;font-size:12px;">If this was not you, please contact your ICU administrator immediately.</p>
+            </div>
+            <div style="background:#f8fafc;padding:16px;text-align:center;border-top:1px solid #e2e8f0;">
+              <p style="color:#9ca3af;font-size:11px;margin:0;">PANOPTES-ICU v2.0 · Patient data encrypted · Research use only</p>
+            </div>
+          </div>
+        </body></html>
+        """
+
+        msg.attach(MIMEText(html, "html"))
+
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(GMAIL_USER, GMAIL_PASSWORD)
+            server.sendmail(GMAIL_USER, data.email, msg.as_string())
+
+        return {"status": "email sent"}
+
+    except Exception as e:
+        logger.error(f"Email send failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ─────────────────────────────────────────────
